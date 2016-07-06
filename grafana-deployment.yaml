@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-grafana
+  namespace: kube-system
+  labels: 
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: "Grafana"
+spec:
+  # On production clusters, consider setting up auth for grafana, and
+  # exposing Grafana either using a LoadBalancer or a public IP.
+  # type: LoadBalancer
+  ports: 
+    - port: 80
+      targetPort: 3000
+  selector: 
+    k8s-app: Grafana
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana-v3
+  namespace: kube-system
+  labels: 
+    k8s-app: Grafana
+    version: v3
+    kubernetes.io/cluster-service: "true"
+spec: 
+  replicas: 1
+  template: 
+    metadata: 
+      labels: 
+        k8s-app: Grafana
+        version: v3
+        kubernetes.io/cluster-service: "true"
+    spec: 
+      containers: 
+        - image: gcr.io/google_containers/heapster_grafana:v2.6.0-2
+          name: grafana
+          env:
+          resources:
+            # keep request = limit to keep this container in guaranteed class
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          env:
+            # This variable is required to setup templates in Grafana.
+              # The following env variables are required to make Grafana accessible via
+              # the kubernetes api-server proxy. On production clusters, we recommend
+              # removing these env variables, setup auth for grafana, and expose the grafana
+              # service using a LoadBalancer or a public IP.
+            - name: GF_AUTH_BASIC_ENABLED
+              value: "false"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+              value: Admin
+            - name: GF_SERVER_ROOT_URL
+              value: /api/v1/proxy/namespaces/kube-system/services/monitoring-grafana/
+          volumeMounts:
+          - name: grafana-persistent-storage
+            mountPath: /var
+      volumes:
+      - name: grafana-persistent-storage
+        emptyDir: {}

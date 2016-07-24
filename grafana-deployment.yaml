@@ -1,38 +1,15 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: monitoring-grafana
-  namespace: kube-system
-  labels:
-    kubernetes.io/cluster-service: "true"
-    kubernetes.io/name: "Grafana"
-spec:
-  # On production clusters, consider setting up auth for grafana, and
-  # exposing Grafana either using a LoadBalancer or a public IP.
-  # type: LoadBalancer
-  ports:
-    - port: 80
-      targetPort: 3000
-  selector:
-    k8s-app: Grafana
----
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: grafana-v3
-  # namespace: kube-system
+  name: grafana
   labels:
-    k8s-app: Grafana
-    version: v3
-    kubernetes.io/cluster-service: "true"
+    app: grafana
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        k8s-app: Grafana
-        version: v3
-        kubernetes.io/cluster-service: "true"
+        app: grafana
     spec:
       containers:
         # - image: gcr.io/google_containers/heapster_grafana:v2.6.0-2

@@ -16,6 +16,9 @@ kubectl create --filename prometheus-services.yaml
 # kubectl get services/prometheus
 # minikube service prometheus
 
+kubectl create --filename node-exporter-daemonset.yaml
+kubectl create --filename node-exporter-service.yaml
+
 kubectl create --filename grafana-deployment.yaml
 # kubectl get --all-namespaces --output wide pods
 

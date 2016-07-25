@@ -4,12 +4,13 @@ metadata:
   name: grafana
   labels:
     app: grafana
+  annotations:
+    prometheus.io/scrape: 'true'
 spec:
-  # On production clusters, consider setting up auth for grafana, and
-  # exposing Grafana either using a LoadBalancer or a public IP.
-  # type: LoadBalancer
+  type: NodePort
   ports:
     - port: 80
       targetPort: 3000
+      nodePort: 31000
   selector:
     app: grafana

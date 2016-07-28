@@ -1,7 +1,10 @@
 # Prometheus & Grafana
 
-- Intro to the tool
-- What's included
+[Prometheus](https://prometheus.io/) is an open-source monitoring solution that includes the gathering of metrics, their storage in an internal time series database as well as querying and alerting based on that data.
+
+It offers a lot of integrations incl. Docker, Kubernetes, etc.
+
+Prometheus can also visualize your data. However, in this recipe we include another open-source tool, [Grafana](http://grafana.org/), for the visualization part, as it offers a more powerful and flexible way to generate visuals and dashboards.
 
 ## Deploying Prometheus
 
@@ -53,7 +56,7 @@ Once we're in Grafana we need to first configure [Prometheus](https://grafana.ne
 
 ![Grafana Datasource](grafana_datasource.png)
 
-Then go to the Dashboards tab and import the [Prometheus Stats dashboard](https://grafana.net/dashboards/2), which shows of the status of Prometheus itself.
+Then go to the Dashboards tab and import the [Prometheus Stats dashboard](https://grafana.net/dashboards/2), which shows the status of Prometheus itself.
 
 ![Grafana Datasource Dashboard](grafana_datasource_dashboard.png)
 

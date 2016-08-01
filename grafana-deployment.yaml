@@ -1,41 +1,20 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: monitoring-grafana
-  namespace: kube-system
-  labels: 
-    kubernetes.io/cluster-service: "true"
-    kubernetes.io/name: "Grafana"
-spec:
-  # On production clusters, consider setting up auth for grafana, and
-  # exposing Grafana either using a LoadBalancer or a public IP.
-  # type: LoadBalancer
-  ports: 
-    - port: 80
-      targetPort: 3000
-  selector: 
-    k8s-app: Grafana
----
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: grafana-v3
-  namespace: kube-system
-  labels: 
-    k8s-app: Grafana
-    version: v3
-    kubernetes.io/cluster-service: "true"
-spec: 
+  name: grafana
+  labels:
+    app: grafana
+spec:
   replicas: 1
-  template: 
-    metadata: 
-      labels: 
-        k8s-app: Grafana
-        version: v3
-        kubernetes.io/cluster-service: "true"
-    spec: 
-      containers: 
-        - image: gcr.io/google_containers/heapster_grafana:v2.6.0-2
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        # - image: gcr.io/google_containers/heapster_grafana:v2.6.0-2
+        # - image: grafana/grafana:3.0.4
+        - image: grafana/grafana:3.1.0
           name: grafana
           env:
           resources:
@@ -58,8 +37,8 @@ spec:
               value: "true"
             - name: GF_AUTH_ANONYMOUS_ORG_ROLE
               value: Admin
-            - name: GF_SERVER_ROOT_URL
-              value: /api/v1/proxy/namespaces/kube-system/services/monitoring-grafana/
+            # - name: GF_SERVER_ROOT_URL
+            #   value: /api/v1/proxy/namespaces/kube-system/services/monitoring-grafana/
           volumeMounts:
           - name: grafana-persistent-storage
             mountPath: /var

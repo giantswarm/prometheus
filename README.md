@@ -7,24 +7,24 @@ kubectl create --filename prometheus-configmap.yaml
 # kubectl get configmaps
 # kubectl delete configmaps/prometheus
 
+kubectl create --filename prometheus-service.yaml
+# kubectl get services/prometheus
+# minikube service prometheus
+
 kubectl create --filename prometheus-deployment.yaml
 # kubectl get --all-namespaces --output wide pods
 # kubectl logs prometheus-2556266794-sd260
 # kubectl delete pods/prometheus-2556266794-sd260
 
-kubectl create --filename prometheus-services.yaml
-# kubectl get services/prometheus
-# minikube service prometheus
-
-kubectl create --filename node-exporter-daemonset.yaml
 kubectl create --filename node-exporter-service.yaml
+kubectl create --filename node-exporter-daemonset.yaml
+
+kubectl create --filename grafana-service.yaml
+# kubectl get services/grafana
+# minikube service grafana
 
 kubectl create --filename grafana-deployment.yaml
 # kubectl get --all-namespaces --output wide pods
-
-kubectl create --filename grafana-services.yaml
-# kubectl get services/grafana
-# minikube service grafana
 ```
 
 See grafana.net for some example [dashboards](https://grafana.net/dashboards) and [plugins](https://grafana.net/plugins).

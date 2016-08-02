@@ -2,6 +2,12 @@
 
 > Work in progress. Please fix me :)
 
+Short version:
+```bash
+kubectl create --filename manifests/
+```
+
+Longer version:
 ```bash
 kubectl create --filename prometheus-configmap.yaml
 # kubectl get configmaps

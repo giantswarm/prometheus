@@ -2,28 +2,36 @@
 
 > Work in progress. Please fix me :)
 
+To quickly start all the things just do this:
 ```bash
-kubectl create --filename prometheus-configmap.yaml
+kubectl create --filename manifests/
+```
+
+
+Alternatively follow these steps to get a feeling for the different components of this setup:
+
+```bash
+kubectl create --filename manifests/prometheus-configmap.yaml
 # kubectl get configmaps
 # kubectl delete configmaps/prometheus
 
-kubectl create --filename prometheus-service.yaml
+kubectl create --filename manifests/prometheus-service.yaml
 # kubectl get services/prometheus
 # minikube service prometheus
 
-kubectl create --filename prometheus-deployment.yaml
+kubectl create --filename manifests/prometheus-deployment.yaml
 # kubectl get --all-namespaces --output wide pods
 # kubectl logs prometheus-2556266794-sd260
 # kubectl delete pods/prometheus-2556266794-sd260
 
-kubectl create --filename node-exporter-service.yaml
-kubectl create --filename node-exporter-daemonset.yaml
+kubectl create --filename manifests/node-exporter-service.yaml
+kubectl create --filename manifests/node-exporter-daemonset.yaml
 
-kubectl create --filename grafana-service.yaml
+kubectl create --filename manifests/grafana-service.yaml
 # kubectl get services/grafana
 # minikube service grafana
 
-kubectl create --filename grafana-deployment.yaml
+kubectl create --filename manifests/grafana-deployment.yaml
 # kubectl get --all-namespaces --output wide pods
 ```
 
@@ -49,3 +57,9 @@ See grafana.net for some example [dashboards](https://grafana.net/dashboards) an
   - `Load`
   - `Prometheus`: `prometheus`
   - `Save & Open`
+
+Instead of manually configuring the datasource and dashboards you can run the following job. It uses the API to configure Grafana to a state similar to when you manually go through the steps described above.
+
+```bash
+kubectl create --filename manifests/grafana-import-dashboards-job.yaml
+```

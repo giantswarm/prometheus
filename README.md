@@ -58,7 +58,8 @@ See grafana.net for some example [dashboards](https://grafana.net/dashboards) an
   - `Prometheus`: `prometheus`
   - `Save & Open`
 
-Instead of manually configuring these datasource and dashboards you can run the followin job. At least it trues /tries/ to provide the same result for you:
+Instead of manually configuring the datasource and dashboards you can run the following job. It uses the API to configure Grafana to a state similar to when you manually go through the steps described above.
+
 ```bash
 kubectl create --filename manifests/grafana-import-dashboards-job.yaml
 ```

@@ -1,22 +1,22 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: grafana
+  name: grafana-core
   labels:
     app: grafana
+    component: core
 spec:
   replicas: 1
   template:
     metadata:
       labels:
         app: grafana
+        component: core
     spec:
       containers:
-        # - image: gcr.io/google_containers/heapster_grafana:v2.6.0-2
-        # - image: grafana/grafana:3.0.4
         - image: grafana/grafana:3.1.0
-          name: grafana
-          env:
+          name: grafana-core
+          # env:
           resources:
             # keep request = limit to keep this container in guaranteed class
             limits:

@@ -1,28 +1,32 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: prometheus
+  name: prometheus-core
+  labels:
+    app: prometheus
+    component: core
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: prometheus
+      component: core
   template:
     metadata:
-      name: prometheus
+      name: prometheus-main
       labels:
         app: prometheus
+        component: core
     spec:
       containers:
       - name: prometheus
-        # image: quay.io/coreos/prometheus:0.19.2
-        image: prom/prometheus:v1.0.0
+        image: prom/prometheus:v1.0.1
         args:
           - '-storage.local.retention=6h'
           - '-storage.local.memory-chunks=500000'
           - '-config.file=/etc/prometheus/prometheus.yml'
         ports:
-        - name: prometheus
+        - name: webui
           containerPort: 9090
         volumeMounts:
         - name: config-volume
@@ -30,4 +34,4 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: prometheus
+          name: prometheus-core

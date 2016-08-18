@@ -20,30 +20,17 @@ spec:
         workingDir: /opt/grafana-import-dashboards
         args:
           - >
-            echo 'import datasource "prometheus"' &&
-            curl --silent --fail --show-error \
-              --request POST http://grafana:3000/api/datasources \
-              --header "Content-Type: application/json" \
-              --data-binary @prometheus-datasource.json ;
-
-            echo 'import dashboard "prometheus"' &&
-            curl --silent --fail --show-error \
-              --request POST http://grafana:3000/api/dashboards/import \
-              --header "Content-Type: application/json" \
-              --data-binary @grafana-net-2.json ;
-
-            echo 'import dashboard "kubernetes"' &&
-            curl --silent --fail --show-error \
-              --request POST http://grafana:3000/api/dashboards/import \
-              --header "Content-Type: application/json" \
-              --data-binary @grafana-net-162.json
-
-            echo 'import dashboard "docker"' &&
-            curl --silent --fail --show-error \
-              --request POST http://grafana:3000/api/dashboards/import \
-              --header "Content-Type: application/json" \
-              --data-binary @grafana-net-193.json
-
+          for file in *.json ; do \
+            if [ -e "$file" ] ; then \
+              echo "importing $file" &&
+              curl --silent --fail --show-error \
+                --request POST http://grafana:3000/api/datasources \
+                --header "Content-Type: application/json" \
+                --data-binary "@$file" &&
+              echo "" ; \
+            fi \
+          done
+          
         volumeMounts:
         - name: config-volume
           mountPath: /opt/grafana-import-dashboards

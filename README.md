@@ -6,12 +6,14 @@
 
 To quickly start all the things just do this:
 ```bash
-kubectl create --filename manifests/
+kubectl create namespace monitoring
+kubectl --namespace monitoring create \
+  --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests-all.yaml
 ```
 
 To shut down all components again:
 ```bash
-kubectl delete --selector "app in (grafana,prometheus)" daemonsets,deployments,configmaps,jobs,all
+kubectl delete namespace monitoring
 ```
 
 

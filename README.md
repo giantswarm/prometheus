@@ -2,11 +2,20 @@
 
 > Work in progress. Please fix me :)
 
+## Quick start
+
 To quickly start all the things just do this:
 ```bash
 kubectl create --filename manifests/
 ```
 
+To shut down all components again:
+```bash
+kubectl delete --selector "app in (grafana,prometheus)" daemonsets,deployments,configmaps,jobs,all
+```
+
+
+## More Details
 
 Alternatively follow these steps to get a feeling for the different components of this setup:
 
@@ -62,4 +71,19 @@ Instead of manually configuring the datasource and dashboards you can run the fo
 
 ```bash
 kubectl create --filename manifests/grafana-import-dashboards-job.yaml
+```
+
+
+# Create one single manifest file
+
+```bash
+target="./manifests-all.yaml"
+rm "$target"
+printf -- "# Derived from ./manifests/*.yaml\n---\n" >> "$target"
+for file in ./manifests/*.yaml ; do
+  if [ -e "$file" ] ; then
+     cat "$file" >> "$target"
+     printf -- "---\n" >> "$target"
+  fi
+done
 ```

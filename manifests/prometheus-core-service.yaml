@@ -4,6 +4,7 @@ metadata:
   name: prometheus
   labels:
     app: prometheus
+    component: core
   annotations:
     prometheus.io/scrape: 'true'
 spec:
@@ -12,6 +13,7 @@ spec:
     - port: 9090
       nodePort: 30900
       protocol: TCP
-      name: prometheus
+      name: webui
   selector:
     app: prometheus
+    component: core

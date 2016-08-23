@@ -1,0 +1,391 @@
+# Derived from ./manifests/*.yaml
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana-core
+  labels:
+    app: grafana
+    component: core
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: grafana
+        component: core
+    spec:
+      containers:
+        - image: grafana/grafana:3.1.0
+          name: grafana-core
+          # env:
+          resources:
+            # keep request = limit to keep this container in guaranteed class
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          env:
+            # This variable is required to setup templates in Grafana.
+              # The following env variables are required to make Grafana accessible via
+              # the kubernetes api-server proxy. On production clusters, we recommend
+              # removing these env variables, setup auth for grafana, and expose the grafana
+              # service using a LoadBalancer or a public IP.
+            - name: GF_AUTH_BASIC_ENABLED
+              value: "false"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+              value: Admin
+            # - name: GF_SERVER_ROOT_URL
+            #   value: /api/v1/proxy/namespaces/kube-system/services/monitoring-grafana/
+          volumeMounts:
+          - name: grafana-persistent-storage
+            mountPath: /var
+      volumes:
+      - name: grafana-persistent-storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+    component: core
+  # annotations:
+  #   prometheus.io/scrape: 'true'
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      nodePort: 31000
+  selector:
+    app: grafana
+    component: core
+---
+# based on the content created by:
+# kubectl create configmap grafana-import-dashboards --from-file=manifests/grafana-import-dashboards-configmap --output yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-import-dashboards
+  labels:
+    app: grafana
+    component: import-dashboards
+data:
+  grafana-net-2-dashboard.json: |
+    {"dashboard":{"__inputs":[{"name":"DS_PROMETHEUS","label":"Prometheus","description":"","type":"datasource","pluginId":"prometheus","pluginName":"Prometheus"}],"__requires":[{"type":"panel","id":"singlestat","name":"Singlestat","version":""},{"type":"panel","id":"text","name":"Text","version":""},{"type":"panel","id":"graph","name":"Graph","version":""},{"type":"grafana","id":"grafana","name":"Grafana","version":"3.1.0"},{"type":"datasource","id":"prometheus","name":"Prometheus","version":"1.0.0"}],"id":null,"title":"Prometheus Stats","tags":[],"style":"dark","timezone":"browser","editable":true,"hideControls":true,"sharedCrosshair":false,"rows":[{"collapse":false,"editable":true,"height":178,"panels":[{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(245, 54, 54, 0.9)","rgba(237, 129, 40, 0.89)","rgba(50, 172, 45, 0.97)"],"datasource":"${DS_PROMETHEUS}","decimals":1,"editable":true,"error":false,"format":"s","id":5,"interval":null,"links":[],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","span":3,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"(time() - process_start_time_seconds{job=\"prometheus\"})","intervalFactor":2,"refId":"A","step":4}],"thresholds":"","title":"Uptime","type":"singlestat","valueFontSize":"80%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current","mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"rangeMaps":[{"from":"null","to":"null","text":"N/A"}],"mappingType":1,"gauge":{"show":false,"minValue":0,"maxValue":100,"thresholdMarkers":true,"thresholdLabels":false}},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"format":"none","id":6,"interval":null,"links":[],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","span":3,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":true},"targets":[{"expr":"prometheus_local_storage_memory_series","intervalFactor":2,"refId":"A","step":4}],"thresholds":"1,5","title":"Local Storage Memory Series","type":"singlestat","valueFontSize":"70%","valueMaps":[],"valueName":"current","mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"rangeMaps":[{"from":"null","to":"null","text":"N/A"}],"mappingType":1,"gauge":{"show":false,"minValue":0,"maxValue":100,"thresholdMarkers":true,"thresholdLabels":false}},{"cacheTimeout":null,"colorBackground":false,"colorValue":true,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"format":"none","id":7,"interval":null,"links":[],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","span":3,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":true},"targets":[{"expr":"prometheus_local_storage_indexing_queue_length","intervalFactor":2,"refId":"A","step":4}],"thresholds":"500,4000","title":"Interal Storage Queue Length","type":"singlestat","valueFontSize":"70%","valueMaps":[{"op":"=","text":"Empty","value":"0"}],"valueName":"current","mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"rangeMaps":[{"from":"null","to":"null","text":"N/A"}],"mappingType":1,"gauge":{"show":false,"minValue":0,"maxValue":100,"thresholdMarkers":true,"thresholdLabels":false}},{"content":"<img src=\"http://prometheus.io/assets/prometheus_logo_grey.svg\" alt=\"Prometheus logo\" style=\"height: 40px;\">\n<span style=\"font-family: 'Open Sans', 'Helvetica Neue', Helvetica; font-size: 25px;vertical-align: text-top;color: #bbbfc2;margin-left: 10px;\">Prometheus</span>\n\n<p style=\"margin-top: 10px;\">You're using Prometheus, an open-source systems monitoring and alerting toolkit originally built at SoundCloud. For more information, check out the <a href=\"http://www.grafana.org/\">Grafana</a> and <a href=\"http://prometheus.io/\">Prometheus</a> projects.</p>","editable":true,"error":false,"id":9,"links":[],"mode":"html","span":3,"style":{},"title":"","transparent":true,"type":"text"}],"title":"New row"},{"collapse":false,"editable":true,"height":227,"panels":[{"aliasColors":{"prometheus":"#C15C17","{instance=\"localhost:9090\",job=\"prometheus\"}":"#C15C17"},"bars":false,"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":3,"legend":{"avg":false,"current":false,"max":false,"min":false,"show":true,"total":false,"values":false},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":2,"points":false,"renderer":"flot","seriesOverrides":[],"span":9,"stack":false,"steppedLine":false,"targets":[{"expr":"rate(prometheus_local_storage_ingested_samples_total[5m])","interval":"","intervalFactor":2,"legendFormat":"{{job}}","metric":"","refId":"A","step":2}],"timeFrom":null,"timeShift":null,"title":"Samples ingested (rate-5m)","tooltip":{"shared":true,"value_type":"cumulative","ordering":"alphabetical","msResolution":false},"type":"graph","yaxes":[{"show":true,"min":null,"max":null,"logBase":1,"format":"short"},{"show":true,"min":null,"max":null,"logBase":1,"format":"short"}],"xaxis":{"show":true}},{"content":"#### Samples Ingested\nThis graph displays the count of samples ingested by the Prometheus server, as measured over the last 5 minutes, per time series in the range vector. When troubleshooting an issue on IRC or Github, this is often the first stat requested by the Prometheus team. ","editable":true,"error":false,"id":8,"links":[],"mode":"markdown","span":2.995914043583536,"style":{},"title":"","transparent":true,"type":"text"}],"title":"New row"},{"collapse":false,"editable":true,"height":"250px","panels":[{"aliasColors":{"prometheus":"#F9BA8F","{instance=\"localhost:9090\",interval=\"5s\",job=\"prometheus\"}":"#F9BA8F"},"bars":false,"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":2,"legend":{"avg":false,"current":false,"max":false,"min":false,"show":true,"total":false,"values":false},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":5,"stack":false,"steppedLine":false,"targets":[{"expr":"rate(prometheus_target_interval_length_seconds_count[5m])","intervalFactor":2,"legendFormat":"{{job}}","refId":"A","step":2}],"timeFrom":null,"timeShift":null,"title":"Target Scrapes (last 5m)","tooltip":{"shared":true,"value_type":"cumulative","ordering":"alphabetical","msResolution":false},"type":"graph","yaxes":[{"show":true,"min":null,"max":null,"logBase":1,"format":"short"},{"show":true,"min":null,"max":null,"logBase":1,"format":"short"}],"xaxis":{"show":true}},{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":14,"legend":{"avg":false,"current":false,"max":false,"min":false,"show":true,"total":false,"values":false},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":4,"stack":false,"steppedLine":false,"targets":[{"expr":"prometheus_target_interval_length_seconds{quantile!=\"0.01\", quantile!=\"0.05\"}","interval":"","intervalFactor":2,"legendFormat":"{{quantile}} ({{interval}})","metric":"","refId":"A","step":2}],"timeFrom":null,"timeShift":null,"title":"Scrape Duration","tooltip":{"shared":true,"value_type":"cumulative","ordering":"alphabetical","msResolution":false},"type":"graph","yaxes":[{"show":true,"min":null,"max":null,"logBase":1,"format":"short"},{"show":true,"min":null,"max":null,"logBase":1,"format":"short"}],"xaxis":{"show":true}},{"content":"#### Scrapes\nPrometheus scrapes metrics from instrumented jobs, either directly or via an intermediary push gateway for short-lived jobs. Target scrapes will show how frequently targets are scraped, as measured over the last 5 minutes, per time series in the range vector. Scrape Duration will show how long the scrapes are taking, with percentiles available as series. ","editable":true,"error":false,"id":11,"links":[],"mode":"markdown","span":3,"style":{},"title":"","transparent":true,"type":"text"}],"title":"New row"},{"collapse":false,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":null,"editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":12,"legend":{"alignAsTable":false,"avg":false,"current":false,"hideEmpty":true,"max":false,"min":false,"show":true,"total":false,"values":false},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":9,"stack":false,"steppedLine":false,"targets":[{"expr":"prometheus_evaluator_duration_milliseconds{quantile!=\"0.01\", quantile!=\"0.05\"}","interval":"","intervalFactor":2,"legendFormat":"{{quantile}}","refId":"A","step":2}],"timeFrom":null,"timeShift":null,"title":"Rule Eval Duration","tooltip":{"shared":true,"value_type":"cumulative","ordering":"alphabetical","msResolution":false},"type":"graph","yaxes":[{"show":true,"min":null,"max":null,"logBase":1,"format":"percentunit","label":""},{"show":true,"min":null,"max":null,"logBase":1,"format":"short"}],"xaxis":{"show":true}},{"content":"#### Rule Evaluation Duration\nThis graph panel plots the duration for all evaluations to execute. The 50th percentile, 90th percentile and 99th percentile are shown as three separate series to help identify outliers that may be skewing the data.","editable":true,"error":false,"id":15,"links":[],"mode":"markdown","span":3,"style":{},"title":"","transparent":true,"type":"text"}],"title":"New row"}],"time":{"from":"now-5m","to":"now"},"timepicker":{"now":true,"refresh_intervals":["5s","10s","30s","1m","5m","15m","30m","1h","2h","1d"],"time_options":["5m","15m","1h","6h","12h","24h","2d","7d","30d"]},"templating":{"list":[]},"annotations":{"list":[]},"refresh":false,"schemaVersion":12,"version":0,"links":[{"icon":"info","tags":[],"targetBlank":true,"title":"Grafana Docs","tooltip":"","type":"link","url":"http://www.grafana.org/docs"},{"icon":"info","tags":[],"targetBlank":true,"title":"Prometheus Docs","type":"link","url":"http://prometheus.io/docs/introduction/overview/"}],"gnetId":2,"description":"The  official, pre-built Prometheus Stats Dashboard."},"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}
+  grafana-net-162-dashboard.json: |
+    {"dashboard":{"__inputs":[{"name":"DS_PROMETHEUS","label":"Prometheus","description":"","type":"datasource","pluginId":"prometheus","pluginName":"Prometheus"}],"__requires":[{"type":"panel","id":"singlestat","name":"Singlestat","version":""},{"type":"panel","id":"graph","name":"Graph","version":""},{"type":"grafana","id":"grafana","name":"Grafana","version":"3.1.0"},{"type":"datasource","id":"prometheus","name":"Prometheus","version":"1.0.0"}],"id":null,"title":"Kubernetes cluster monitoring (via Prometheus)","tags":["kubernetes"],"style":"dark","timezone":"browser","editable":true,"hideControls":true,"sharedCrosshair":true,"rows":[{"collapse":false,"editable":true,"height":"250px","panels":[{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"format":"percent","gauge":{"maxValue":100,"minValue":0,"show":true,"thresholdLabels":false,"thresholdMarkers":true},"id":4,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":4,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"(sum(node_memory_MemTotal) - sum(node_memory_MemFree+node_memory_Buffers+node_memory_Cached) ) / sum(node_memory_MemTotal) * 100","interval":"10s","intervalFactor":1,"refId":"A","step":10}],"thresholds":"65, 90","title":"Cluster memory usage","type":"singlestat","valueFontSize":"80%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"format":"percent","gauge":{"maxValue":100,"minValue":0,"show":true,"thresholdLabels":false,"thresholdMarkers":true},"id":6,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":4,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum(sum by (io_kubernetes_container_name)( rate(container_cpu_usage_seconds_total{image!=\"\"}[1m] ) )) / count(node_cpu{mode=\"system\"}) * 100","interval":"10s","intervalFactor":1,"refId":"A","step":10}],"thresholds":"65, 90","title":"Cluster CPU usage","type":"singlestat","valueFontSize":"80%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"format":"percent","gauge":{"maxValue":100,"minValue":0,"show":true,"thresholdLabels":false,"thresholdMarkers":true},"id":7,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":4,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"(sum(node_filesystem_size{device=\"rootfs\"}) - sum(node_filesystem_free{device=\"rootfs\"}) ) / sum(node_filesystem_size{device=\"rootfs\"}) * 100","interval":"10s","intervalFactor":1,"metric":"","refId":"A","step":10}],"thresholds":"65, 90","title":"Cluster Filesystem usage","type":"singlestat","valueFontSize":"80%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"}],"title":"Row"},{"collapse":false,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":3,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":3,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum by (io_kubernetes_container_name)( rate(container_cpu_usage_seconds_total{image!=\"\"}[1m] ) )","interval":"10s","intervalFactor":1,"legendFormat":"{{ io_kubernetes_container_name }}","metric":"container_cpu","refId":"A","step":10}],"timeFrom":null,"timeShift":null,"title":"Pod CPU usage","tooltip":{"msResolution":true,"shared":true,"sort":0,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"percent","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":true}]}],"title":"New row"},{"collapse":false,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":2,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"sideWidth":200,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sort_desc(sum(container_memory_usage_bytes{image!=\"\"}) by (io_kubernetes_container_name, image))","interval":"10s","intervalFactor":1,"legendFormat":"{{ io_kubernetes_container_name }}","metric":"container_memory_usage:sort_desc","refId":"A","step":10}],"timeFrom":null,"timeShift":null,"title":"Pod memory usage","tooltip":{"msResolution":false,"shared":true,"sort":0,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"bytes","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":true}]},{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":8,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"sideWidth":200,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sort_desc(sum by (kubernetes_pod_name) (rate (container_network_receive_bytes_total{name!=\"\", kubernetes_pod_name=~\"op-.*\"}[1m]) ))","interval":"10s","intervalFactor":1,"legendFormat":"{{ kubernetes_pod_name }}","metric":"network","refId":"A","step":10},{"expr":"sort_desc(sum by (kubernetes_pod_name) (rate (container_network_transmit_bytes_total{name!=\"\", kubernetes_pod_name=~\"op-.*\"}[1m]) ))","interval":"10s","intervalFactor":1,"legendFormat":"{{ kubernetes_pod_name }}","metric":"network","refId":"B","step":10}],"timeFrom":null,"timeShift":null,"title":"Pod Network i/o","tooltip":{"msResolution":false,"shared":true,"sort":0,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"bytes","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":true}]}],"title":"New row"}],"time":{"from":"now-1h","to":"now"},"timepicker":{"refresh_intervals":["5s","10s","30s","1m","5m","15m","30m","1h","2h","1d"],"time_options":["5m","15m","1h","6h","12h","24h","2d","7d","30d"]},"templating":{"list":[]},"annotations":{"list":[]},"refresh":"10s","schemaVersion":12,"version":46,"links":[],"gnetId":162,"description":"Monitor a Kubernetes cluster using Prometheus TSDB.  Shows overall cluster CPU / Memory / Disk usage as well as individual pod statistics. "},"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}
+  grafana-net-193-dashboard.json: |
+    {"dashboard":{"__inputs":[{"name":"DS_PROMETHEUS","label":"prometheus","description":"prometheus with cAdvisor as a target","type":"datasource","pluginId":"prometheus","pluginName":"Prometheus"}],"__requires":[{"type":"panel","id":"singlestat","name":"Singlestat","version":""},{"type":"panel","id":"graph","name":"Graph","version":""},{"type":"grafana","id":"grafana","name":"Grafana","version":"3.1.0"},{"type":"datasource","id":"prometheus","name":"Prometheus","version":"1.0.0"}],"id":null,"title":"Docker monitoring","description":"Docker monitoring with Prometheus and cAdvisor","tags":["docker"],"style":"dark","timezone":"browser","editable":true,"hideControls":false,"sharedCrosshair":true,"rows":[{"collapse":false,"editable":true,"height":"50","panels":[{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(245, 54, 54, 0.9)","rgba(237, 129, 40, 0.89)","rgba(50, 172, 45, 0.97)"],"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"format":"none","gauge":{"maxValue":100,"minValue":0,"show":false,"thresholdLabels":false,"thresholdMarkers":true},"height":"20","id":7,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":4,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"count(container_last_seen{image!=\"\"})","intervalFactor":2,"legendFormat":"","metric":"container_last_seen","refId":"A","step":240}],"thresholds":"","title":"Running containers","transparent":true,"type":"singlestat","valueFontSize":"80%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"avg"},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(245, 54, 54, 0.9)","rgba(237, 129, 40, 0.89)","rgba(50, 172, 45, 0.97)"],"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"format":"mbytes","gauge":{"maxValue":100,"minValue":0,"show":false,"thresholdLabels":false,"thresholdMarkers":true},"height":"20","id":5,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":4,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum(container_memory_usage_bytes{image!=\"\"})/1024/1024","intervalFactor":2,"legendFormat":"","metric":"container_memory_usage_bytes","refId":"A","step":240}],"thresholds":"","title":"Total Memory Usage","transparent":true,"type":"singlestat","valueFontSize":"80%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(245, 54, 54, 0.9)","rgba(237, 129, 40, 0.89)","rgba(50, 172, 45, 0.97)"],"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"format":"percent","gauge":{"maxValue":100,"minValue":0,"show":false,"thresholdLabels":false,"thresholdMarkers":true},"height":"20","id":6,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":4,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum(rate(container_cpu_user_seconds_total{image!=\"\"}[5m]) * 100)","intervalFactor":2,"legendFormat":"","metric":"container_memory_usage_bytes","refId":"A","step":240}],"thresholds":"","title":"Total CPU Usage","transparent":true,"type":"singlestat","valueFontSize":"80%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"}],"title":"New row"},{"collapse":false,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":2,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"rate(container_cpu_user_seconds_total{image!=\"\"}[5m]) * 100","intervalFactor":2,"legendFormat":"{{name}}","metric":"cpu","refId":"A","step":10}],"timeFrom":null,"timeShift":null,"title":"CPU Usage","tooltip":{"msResolution":false,"shared":true,"sort":0,"value_type":"cumulative"},"transparent":false,"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"percent","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":true}]}],"title":"Row"},{"collapse":false,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":1,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"container_memory_usage_bytes{image!=\"\"}","hide":false,"intervalFactor":2,"legendFormat":"{{name}}","metric":"container_memory_usage_bytes","refId":"A","step":10}],"timeFrom":null,"timeShift":null,"title":"Memory Usage","tooltip":{"msResolution":false,"shared":true,"sort":0,"value_type":"cumulative"},"transparent":false,"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"bytes","label":"","logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"title":"New row"},{"collapse":false,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":3,"isNew":true,"legend":{"avg":false,"current":false,"max":false,"min":false,"show":true,"total":false,"values":false},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":6,"stack":false,"steppedLine":false,"targets":[{"expr":"irate(container_network_receive_bytes_total{image!=\"\"}[5m])","intervalFactor":2,"legendFormat":"{{name}}","metric":"container_network_receive_bytes_total","refId":"A","step":20}],"timeFrom":null,"timeShift":null,"title":"Network Rx","tooltip":{"msResolution":false,"shared":true,"sort":0,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"Bps","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":true}]},{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":4,"isNew":true,"legend":{"avg":false,"current":false,"max":false,"min":false,"show":true,"total":false,"values":false},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":6,"stack":false,"steppedLine":false,"targets":[{"expr":"irate(container_network_transmit_bytes_total{image!=\"\"}[5m])","intervalFactor":2,"legendFormat":"{{name}}","refId":"A","step":20}],"timeFrom":null,"timeShift":null,"title":"Network Tx","tooltip":{"msResolution":false,"shared":true,"sort":0,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"Bps","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":true}]}],"title":"New row"}],"time":{"from":"now-3h","to":"now"},"timepicker":{"refresh_intervals":["5s","10s","30s","1m","5m","15m","30m","1h","2h","1d"],"time_options":["5m","15m","1h","6h","12h","24h","2d","7d","30d"]},"templating":{"list":[]},"annotations":{"list":[]},"refresh":"10s","schemaVersion":12,"version":26,"links":[],"gnetId":193},"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}
+  grafana-net-315-dashboard.json: |
+    {"dashboard":{"__inputs":[{"name":"DS_PROMETHEUS","label":"Prometheus","description":"","type":"datasource","pluginId":"prometheus","pluginName":"Prometheus"}],"__requires":[{"type":"panel","id":"graph","name":"Graph","version":""},{"type":"panel","id":"singlestat","name":"Singlestat","version":""},{"type":"grafana","id":"grafana","name":"Grafana","version":"3.1.1"},{"type":"datasource","id":"prometheus","name":"Prometheus","version":"1.0.0"}],"id":null,"title":"Kubernetes resources usage monitoring (via Prometheus)","description":"Monitors Kubernetes cluster using Prometheus. Shows overall cluster CPU / Memory / Filesystem usage as well as individual pod, containers, systemd services statistics. Uses cAdvisor metrics only.","tags":["kubernetes"],"style":"dark","timezone":"browser","editable":true,"hideControls":false,"sharedCrosshair":false,"rows":[{"title":"Network I/O pressure","height":"200px","editable":true,"collapse":false,"panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)","thresholdLine":false},"id":32,"isNew":true,"legend":{"alignAsTable":false,"avg":true,"current":true,"max":false,"min":false,"rightSide":false,"show":false,"sideWidth":200,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (rate (container_network_receive_bytes_total{kubernetes_io_hostname=~\"^$Node$\"}[1m]))","interval":"10s","intervalFactor":1,"legendFormat":"Received","metric":"network","refId":"A","step":10},{"expr":"- sum (rate (container_network_transmit_bytes_total{kubernetes_io_hostname=~\"^$Node$\"}[1m]))","interval":"10s","intervalFactor":1,"legendFormat":"Sent","metric":"network","refId":"B","step":10}],"timeFrom":null,"timeShift":null,"title":"Network I/O pressure","tooltip":{"msResolution":false,"shared":true,"sort":0,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"Bps","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"Bps","label":null,"logBase":1,"max":null,"min":null,"show":false}],"height":"200px","transparent":false}]},{"collapse":false,"editable":true,"height":"250px","panels":[{"cacheTimeout":null,"colorBackground":false,"colorValue":true,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","editable":true,"error":false,"format":"percent","gauge":{"maxValue":100,"minValue":0,"show":true,"thresholdLabels":false,"thresholdMarkers":true},"height":"180px","id":4,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":4,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum (container_memory_working_set_bytes{id=\"/\",kubernetes_io_hostname=~\"^$Node$\"}) / sum (machine_memory_bytes{kubernetes_io_hostname=~\"^$Node$\"}) * 100","interval":"10s","intervalFactor":1,"refId":"A","step":10}],"thresholds":"65, 90","title":"Cluster memory usage","transparent":false,"type":"singlestat","valueFontSize":"80%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":true,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"format":"percent","gauge":{"maxValue":100,"minValue":0,"show":true,"thresholdLabels":false,"thresholdMarkers":true},"height":"180px","id":6,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":4,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum (rate (container_cpu_usage_seconds_total{id=\"/\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) / sum (machine_cpu_cores{kubernetes_io_hostname=~\"^$Node$\"}) * 100","interval":"10s","intervalFactor":1,"refId":"A","step":10}],"thresholds":"65, 90","title":"Cluster CPU usage","type":"singlestat","valueFontSize":"80%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":true,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"format":"percent","gauge":{"maxValue":100,"minValue":0,"show":true,"thresholdLabels":false,"thresholdMarkers":true},"height":"180px","id":7,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":4,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum (container_fs_usage_bytes{device=\"/dev/vda9\",id=\"/\",kubernetes_io_hostname=~\"^$Node$\"}) / sum (container_fs_limit_bytes{device=\"/dev/vda9\",id=\"/\",kubernetes_io_hostname=~\"^$Node$\"}) * 100","interval":"10s","intervalFactor":1,"legendFormat":"","metric":"","refId":"A","step":10}],"thresholds":"65, 90","title":"Cluster filesystem usage","type":"singlestat","valueFontSize":"80%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"format":"bytes","gauge":{"maxValue":100,"minValue":0,"show":false,"thresholdLabels":false,"thresholdMarkers":true},"height":"1px","id":9,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"20%","prefix":"","prefixFontSize":"20%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":2,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum (container_memory_working_set_bytes{id=\"/\",kubernetes_io_hostname=~\"^$Node$\"})","interval":"10s","intervalFactor":1,"refId":"A","step":10}],"thresholds":"","title":"Used","type":"singlestat","valueFontSize":"50%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"format":"bytes","gauge":{"maxValue":100,"minValue":0,"show":false,"thresholdLabels":false,"thresholdMarkers":true},"height":"1px","id":10,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":2,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum (machine_memory_bytes{kubernetes_io_hostname=~\"^$Node$\"})","interval":"10s","intervalFactor":1,"refId":"A","step":10}],"thresholds":"","title":"Total","type":"singlestat","valueFontSize":"50%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"format":"none","gauge":{"maxValue":100,"minValue":0,"show":false,"thresholdLabels":false,"thresholdMarkers":true},"height":"1px","id":11,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":" cores","postfixFontSize":"30%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":2,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum (rate (container_cpu_usage_seconds_total{id=\"/\",kubernetes_io_hostname=~\"^$Node$\"}[1m]))","interval":"10s","intervalFactor":1,"refId":"A","step":10}],"thresholds":"","title":"Used","type":"singlestat","valueFontSize":"50%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"format":"none","gauge":{"maxValue":100,"minValue":0,"show":false,"thresholdLabels":false,"thresholdMarkers":true},"height":"1px","id":12,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":" cores","postfixFontSize":"30%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":2,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum (machine_cpu_cores{kubernetes_io_hostname=~\"^$Node$\"})","interval":"10s","intervalFactor":1,"refId":"A","step":10}],"thresholds":"","title":"Total","type":"singlestat","valueFontSize":"50%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"format":"bytes","gauge":{"maxValue":100,"minValue":0,"show":false,"thresholdLabels":false,"thresholdMarkers":true},"height":"1px","id":13,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":2,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum (container_fs_usage_bytes{device=\"/dev/vda9\",id=\"/\",kubernetes_io_hostname=~\"^$Node$\"})","interval":"10s","intervalFactor":1,"refId":"A","step":10}],"thresholds":"","title":"Used","type":"singlestat","valueFontSize":"50%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"},{"cacheTimeout":null,"colorBackground":false,"colorValue":false,"colors":["rgba(50, 172, 45, 0.97)","rgba(237, 129, 40, 0.89)","rgba(245, 54, 54, 0.9)"],"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"format":"bytes","gauge":{"maxValue":100,"minValue":0,"show":false,"thresholdLabels":false,"thresholdMarkers":true},"height":"1px","id":14,"interval":null,"isNew":true,"links":[],"mappingType":1,"mappingTypes":[{"name":"value to text","value":1},{"name":"range to text","value":2}],"maxDataPoints":100,"nullPointMode":"connected","nullText":null,"postfix":"","postfixFontSize":"50%","prefix":"","prefixFontSize":"50%","rangeMaps":[{"from":"null","text":"N/A","to":"null"}],"span":2,"sparkline":{"fillColor":"rgba(31, 118, 189, 0.18)","full":false,"lineColor":"rgb(31, 120, 193)","show":false},"targets":[{"expr":"sum (container_fs_limit_bytes{device=\"/dev/vda9\",id=\"/\",kubernetes_io_hostname=~\"^$Node$\"})","interval":"10s","intervalFactor":1,"refId":"A","step":10}],"thresholds":"","title":"Total","type":"singlestat","valueFontSize":"50%","valueMaps":[{"op":"=","text":"N/A","value":"null"}],"valueName":"current"}],"showTitle":false,"title":"Total usage"},{"collapse":false,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":3,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"height":"","id":17,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (rate (container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (io_kubernetes_pod_name)","interval":"10s","intervalFactor":1,"legendFormat":"{{ io_kubernetes_pod_name }}","metric":"container_cpu","refId":"A","step":10}],"timeFrom":null,"timeShift":null,"title":"Pods CPU usage","tooltip":{"msResolution":true,"shared":true,"sort":2,"value_type":"cumulative"},"transparent":false,"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"none","label":"cores","logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"showTitle":false,"title":"Pods CPU usage"},{"collapse":true,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":3,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"height":"","id":23,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (rate (container_cpu_usage_seconds_total{systemd_service_name!=\"\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (systemd_service_name)","hide":false,"interval":"10s","intervalFactor":1,"legendFormat":"{{ systemd_service_name }}","metric":"container_cpu","refId":"A","step":10}],"timeFrom":null,"timeShift":null,"title":"System services CPU usage","tooltip":{"msResolution":true,"shared":true,"sort":2,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"none","label":"cores","logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"title":"System services CPU usage"},{"collapse":true,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":3,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"height":"","id":24,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"hideEmpty":false,"hideZero":false,"max":false,"min":false,"rightSide":true,"show":true,"sideWidth":null,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (rate (container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\",io_kubernetes_container_name!=\"POD\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (io_kubernetes_container_name, io_kubernetes_pod_name)","hide":false,"interval":"10s","intervalFactor":1,"legendFormat":"pod: {{ io_kubernetes_pod_name }} | {{ io_kubernetes_container_name }}","metric":"container_cpu","refId":"A","step":10},{"expr":"sum (rate (container_cpu_usage_seconds_total{image!=\"\",name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (kubernetes_io_hostname, name, image)","hide":false,"interval":"10s","intervalFactor":1,"legendFormat":"docker: {{ kubernetes_io_hostname }} | {{ image }} ({{ name }})","metric":"container_cpu","refId":"B","step":10},{"expr":"sum (rate (container_cpu_usage_seconds_total{rkt_container_name!=\"\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (kubernetes_io_hostname, rkt_container_name)","interval":"10s","intervalFactor":1,"legendFormat":"rkt: {{ kubernetes_io_hostname }} | {{ rkt_container_name }}","metric":"container_cpu","refId":"C","step":10}],"timeFrom":null,"timeShift":null,"title":"Containers CPU usage","tooltip":{"msResolution":true,"shared":true,"sort":2,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"none","label":"cores","logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"title":"Containers CPU usage"},{"collapse":true,"editable":true,"height":"500px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":3,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":20,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":false,"show":true,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (rate (container_cpu_usage_seconds_total{id!=\"/\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (id)","hide":false,"interval":"10s","intervalFactor":1,"legendFormat":"{{ id }}","metric":"container_cpu","refId":"A","step":10}],"timeFrom":null,"timeShift":null,"title":"All processes CPU usage","tooltip":{"msResolution":true,"shared":true,"sort":2,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"percent","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"repeat":null,"showTitle":false,"title":"All processes CPU usage"},{"collapse":false,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":25,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"sideWidth":200,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (container_memory_working_set_bytes{image!=\"\",name=~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}) by (io_kubernetes_pod_name)","interval":"10s","intervalFactor":1,"legendFormat":"{{ io_kubernetes_pod_name }}","metric":"container_memory_usage:sort_desc","refId":"A","step":10}],"timeFrom":null,"timeShift":null,"title":"Pods memory usage","tooltip":{"msResolution":false,"shared":true,"sort":2,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"bytes","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"title":"Pods memory usage"},{"collapse":true,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":26,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"sideWidth":200,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (container_memory_working_set_bytes{systemd_service_name!=\"\",kubernetes_io_hostname=~\"^$Node$\"}) by (systemd_service_name)","interval":"10s","intervalFactor":1,"legendFormat":"{{ systemd_service_name }}","metric":"container_memory_usage:sort_desc","refId":"A","step":10}],"timeFrom":null,"timeShift":null,"title":"System services memory usage","tooltip":{"msResolution":false,"shared":true,"sort":2,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"bytes","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"title":"System services memory usage"},{"collapse":true,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":27,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"sideWidth":200,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (container_memory_working_set_bytes{image!=\"\",name=~\"^k8s_.*\",io_kubernetes_container_name!=\"POD\",kubernetes_io_hostname=~\"^$Node$\"}) by (io_kubernetes_container_name, io_kubernetes_pod_name)","interval":"10s","intervalFactor":1,"legendFormat":"pod: {{ io_kubernetes_pod_name }} | {{ io_kubernetes_container_name }}","metric":"container_memory_usage:sort_desc","refId":"A","step":10},{"expr":"sum (container_memory_working_set_bytes{image!=\"\",name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}) by (kubernetes_io_hostname, name, image)","interval":"10s","intervalFactor":1,"legendFormat":"docker: {{ kubernetes_io_hostname }} | {{ image }} ({{ name }})","metric":"container_memory_usage:sort_desc","refId":"B","step":10},{"expr":"sum (container_memory_working_set_bytes{rkt_container_name!=\"\",kubernetes_io_hostname=~\"^$Node$\"}) by (kubernetes_io_hostname, rkt_container_name)","interval":"10s","intervalFactor":1,"legendFormat":"rkt: {{ kubernetes_io_hostname }} | {{ rkt_container_name }}","metric":"container_memory_usage:sort_desc","refId":"C","step":10}],"timeFrom":null,"timeShift":null,"title":"Containers memory usage","tooltip":{"msResolution":false,"shared":true,"sort":2,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"bytes","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"title":"Containers memory usage"},{"collapse":true,"editable":true,"height":"500px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":0,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":28,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":false,"show":true,"sideWidth":200,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (container_memory_working_set_bytes{id!=\"/\",kubernetes_io_hostname=~\"^$Node$\"}) by (id)","interval":"10s","intervalFactor":1,"legendFormat":"{{ id }}","metric":"container_memory_usage:sort_desc","refId":"A","step":10}],"timeFrom":null,"timeShift":null,"title":"All processes memory usage","tooltip":{"msResolution":false,"shared":true,"sort":2,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"bytes","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"title":"All processes memory usage"},{"collapse":false,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":16,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"sideWidth":200,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (rate (container_network_receive_bytes_total{image!=\"\",name=~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (io_kubernetes_pod_name)","interval":"10s","intervalFactor":1,"legendFormat":"-> {{ io_kubernetes_pod_name }}","metric":"network","refId":"A","step":10},{"expr":"- sum (rate (container_network_transmit_bytes_total{image!=\"\",name=~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (io_kubernetes_pod_name)","interval":"10s","intervalFactor":1,"legendFormat":"<- {{ io_kubernetes_pod_name }}","metric":"network","refId":"B","step":10}],"timeFrom":null,"timeShift":null,"title":"Pods network I/O","tooltip":{"msResolution":false,"shared":true,"sort":2,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"Bps","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"title":"Pods network I/O"},{"collapse":true,"editable":true,"height":"250px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":30,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":true,"show":true,"sideWidth":200,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (rate (container_network_receive_bytes_total{image!=\"\",name=~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (io_kubernetes_container_name, io_kubernetes_pod_name)","hide":false,"interval":"10s","intervalFactor":1,"legendFormat":"-> pod: {{ io_kubernetes_pod_name }} | {{ io_kubernetes_container_name }}","metric":"network","refId":"B","step":10},{"expr":"- sum (rate (container_network_transmit_bytes_total{image!=\"\",name=~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (io_kubernetes_container_name, io_kubernetes_pod_name)","hide":false,"interval":"10s","intervalFactor":1,"legendFormat":"<- pod: {{ io_kubernetes_pod_name }} | {{ io_kubernetes_container_name }}","metric":"network","refId":"D","step":10},{"expr":"sum (rate (container_network_receive_bytes_total{image!=\"\",name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (kubernetes_io_hostname, name, image)","hide":false,"interval":"10s","intervalFactor":1,"legendFormat":"-> docker: {{ kubernetes_io_hostname }} | {{ image }} ({{ name }})","metric":"network","refId":"A","step":10},{"expr":"- sum (rate (container_network_transmit_bytes_total{image!=\"\",name!~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (kubernetes_io_hostname, name, image)","hide":false,"interval":"10s","intervalFactor":1,"legendFormat":"<- docker: {{ kubernetes_io_hostname }} | {{ image }} ({{ name }})","metric":"network","refId":"C","step":10},{"expr":"sum (rate (container_network_transmit_bytes_total{rkt_container_name!=\"\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (kubernetes_io_hostname, rkt_container_name)","hide":false,"interval":"10s","intervalFactor":1,"legendFormat":"-> rkt: {{ kubernetes_io_hostname }} | {{ rkt_container_name }}","metric":"network","refId":"E","step":10},{"expr":"- sum (rate (container_network_transmit_bytes_total{rkt_container_name!=\"\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (kubernetes_io_hostname, rkt_container_name)","hide":false,"interval":"10s","intervalFactor":1,"legendFormat":"<- rkt: {{ kubernetes_io_hostname }} | {{ rkt_container_name }}","metric":"network","refId":"F","step":10}],"timeFrom":null,"timeShift":null,"title":"Containers network I/O","tooltip":{"msResolution":false,"shared":true,"sort":2,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"Bps","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"title":"Containers network I/O"},{"collapse":true,"editable":true,"height":"500px","panels":[{"aliasColors":{},"bars":false,"datasource":"${DS_PROMETHEUS}","decimals":2,"editable":true,"error":false,"fill":1,"grid":{"threshold1":null,"threshold1Color":"rgba(216, 200, 27, 0.27)","threshold2":null,"threshold2Color":"rgba(234, 112, 112, 0.22)"},"id":29,"isNew":true,"legend":{"alignAsTable":true,"avg":true,"current":true,"max":false,"min":false,"rightSide":false,"show":true,"sideWidth":200,"sort":"current","sortDesc":true,"total":false,"values":true},"lines":true,"linewidth":2,"links":[],"nullPointMode":"connected","percentage":false,"pointradius":5,"points":false,"renderer":"flot","seriesOverrides":[],"span":12,"stack":false,"steppedLine":false,"targets":[{"expr":"sum (rate (container_network_receive_bytes_total{id!=\"/\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (id)","interval":"10s","intervalFactor":1,"legendFormat":"-> {{ id }}","metric":"network","refId":"A","step":10},{"expr":"- sum (rate (container_network_transmit_bytes_total{id!=\"/\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (id)","interval":"10s","intervalFactor":1,"legendFormat":"<- {{ id }}","metric":"network","refId":"B","step":10}],"timeFrom":null,"timeShift":null,"title":"All processes network I/O","tooltip":{"msResolution":false,"shared":true,"sort":2,"value_type":"cumulative"},"type":"graph","xaxis":{"show":true},"yaxes":[{"format":"Bps","label":null,"logBase":1,"max":null,"min":null,"show":true},{"format":"short","label":null,"logBase":1,"max":null,"min":null,"show":false}]}],"title":"All processes network I/O"}],"time":{"from":"now-30m","to":"now"},"timepicker":{"refresh_intervals":["5s","10s","30s","1m","5m","15m","30m","1h","2h","1d"],"time_options":["5m","15m","1h","6h","12h","24h","2d","7d","30d"]},"templating":{"list":[{"allValue":".*","current":{},"datasource":"${DS_PROMETHEUS}","hide":0,"includeAll":true,"multi":false,"name":"Node","options":[],"query":"label_values(kubernetes_io_hostname)","refresh":1,"type":"query"}]},"annotations":{"list":[]},"refresh":"10s","schemaVersion":12,"version":18,"links":[],"gnetId":315},"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}
+  prometheus-datasource.json: |
+    {
+      "name": "prometheus",
+      "type": "prometheus",
+      "url": "http://prometheus:9090",
+      "access": "proxy",
+      "basicAuth": false
+    }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: grafana-import-dashboards
+  labels:
+    app: grafana
+    component: import-dashboards
+spec:
+  template:
+    metadata:
+      name: grafana-import-dashboards
+      labels:
+        app: grafana
+        component: import-dashboards
+    spec:
+      containers:
+      - name: grafana-import-dashboards
+        image: docker
+        command: ["/bin/sh", "-c"]
+        workingDir: /opt/grafana-import-dashboards
+        args:
+          # FIXME use kubernetes probe instead of "until curl"
+          - >
+            until $(curl --silent --fail --show-error --output /dev/null http://grafana:3000/api/datasources); do
+              printf '.' ; sleep 1 ;
+            done ;
+            for file in *-datasource.json ; do
+              if [ -e "$file" ] ; then
+                echo "importing $file" &&
+                curl --silent --fail --show-error \
+                  --request POST http://grafana:3000/api/datasources \
+                  --header "Content-Type: application/json" \
+                  --data-binary "@$file" ;
+                echo "" ;
+              fi
+            done ;
+            for file in *-dashboard.json ; do
+              if [ -e "$file" ] ; then
+                echo "importing $file" &&
+                curl --silent --fail --show-error \
+                  --request POST http://grafana:3000/api/dashboards/import \
+                  --header "Content-Type: application/json" \
+                  --data-binary "@$file" ;
+                echo "" ;
+              fi
+            done
+
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/grafana-import-dashboards
+      restartPolicy: Never
+      volumes:
+      - name: config-volume
+        configMap:
+          name: grafana-import-dashboards
+---
+# based on the content created by:
+# kubectl create configmap prometheus-core --from-file=manifests/prometheus-core-configmap --output yaml > manifests/prometheus-core-configmap.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-core
+  labels:
+    app: prometheus
+    component: core
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 10s
+      scrape_timeout: 10s
+      evaluation_interval: 10s
+
+    scrape_configs:
+
+      # # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L10
+      # - job_name: 'kubernetes-apiserver'
+      #   tls_config:
+      #     ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      #   bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      #   kubernetes_sd_configs:
+      #     - api_servers:
+      #         - 'https://kubernetes.default.svc'
+      #       in_cluster: true
+      #       role: apiserver
+
+      # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L37
+      - job_name: 'kubernetes-nodes'
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+          - api_servers:
+              - 'https://kubernetes.default.svc'
+            in_cluster: true
+            role: node
+        relabel_configs:
+          - source_labels: [__address__]
+            regex: '(.*):10250'
+            replacement: '${1}:10255'
+            target_label: __address__
+
+      # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L79
+      - job_name: 'kubernetes-endpoints'
+        kubernetes_sd_configs:
+          - api_servers:
+              - 'https://kubernetes.default.svc'
+            in_cluster: true
+            role: endpoint
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+            action: replace
+            target_label: __scheme__
+            regex: (https?)
+          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+            action: replace
+            target_label: __address__
+            regex: (.+)(?::\d+);(\d+)
+            replacement: $1:$2
+          - action: labelmap
+            regex: __meta_kubernetes_service_label_(.+)
+          - source_labels: [__meta_kubernetes_service_namespace]
+            action: replace
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_service_name]
+            action: replace
+            target_label: kubernetes_name
+
+      # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L119
+      - job_name: 'kubernetes-services'
+        metrics_path: /probe
+        params:
+          module: [http_2xx]
+        kubernetes_sd_configs:
+          - api_servers:
+              - 'https://kubernetes.default.svc'
+            in_cluster: true
+            role: service
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_probe]
+            action: keep
+            regex: true
+          - source_labels: [__address__]
+            target_label: __param_target
+          - target_label: __address__
+            replacement: blackbox
+          - source_labels: [__param_target]
+            target_label: instance
+          - action: labelmap
+            regex: __meta_kubernetes_service_label_(.+)
+          - source_labels: [__meta_kubernetes_service_namespace]
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_service_name]
+            target_label: kubernetes_name
+
+      # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L156
+      - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+          - api_servers:
+              - 'https://kubernetes.default.svc'
+            in_cluster: true
+            role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: (.+):(?:\d+);(\d+)
+            replacement: ${1}:${2}
+            target_label: __address__
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - source_labels: [__meta_kubernetes_pod_namespace]
+            action: replace
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: kubernetes_pod_name
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus-core
+  labels:
+    app: prometheus
+    component: core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+      component: core
+  template:
+    metadata:
+      name: prometheus-main
+      labels:
+        app: prometheus
+        component: core
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v1.0.1
+        args:
+          - '-storage.local.retention=6h'
+          - '-storage.local.memory-chunks=500000'
+          - '-config.file=/etc/prometheus/prometheus.yml'
+        ports:
+        - name: webui
+          containerPort: 9090
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/prometheus
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-core
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+    component: core
+  annotations:
+    prometheus.io/scrape: 'true'
+spec:
+  type: NodePort
+  ports:
+    - port: 9090
+      nodePort: 30900
+      protocol: TCP
+      name: webui
+  selector:
+    app: prometheus
+    component: core
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: prometheus-node-exporter
+  labels:
+    app: prometheus
+    component: node-exporter
+spec:
+  template:
+    metadata:
+      name: prometheus-node-exporter
+      labels:
+        app: prometheus
+        component: node-exporter
+    spec:
+      containers:
+      - image: prom/node-exporter:0.12.0
+        name: prometheus-node-exporter
+        ports:
+        - name: prom-node-exp
+          #^ must be an IANA_SVC_NAME (at most 15 characters, ..)
+          containerPort: 9100
+          hostPort: 9100
+      hostNetwork: true
+      hostPID: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scrape: 'true'
+  name: prometheus-node-exporter
+  labels:
+    app: prometheus
+    component: node-exporter
+spec:
+  clusterIP: None
+  ports:
+    - name: prometheus-node-exporter
+      port: 9100
+      protocol: TCP
+  selector:
+    app: prometheus
+    component: node-exporter
+  type: ClusterIP
+---

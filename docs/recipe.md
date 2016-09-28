@@ -9,28 +9,33 @@ Prometheus can also visualize your data. However, in this recipe we include anot
 If you just want to get Prometheus and Grafana up and running you can deploy the whole recipe with a single command instead of going through all steps detailed out below:
 
 ```bash
-kubectl create --filename manifests/
+kubectl create namespace monitoring
+kubectl --namespace monitoring create --filename manifests/
 ```
 
 ## Deploying Prometheus
 
-First, we need to create the configuration for our Prometheus. For this we use a Config Map, which we later mount into our Prometheus pod to configure it. This way we can change the configuration without having to redeploy Prometheus itself.
+First, we want to create a namespace for our monitoring setup to keep all out components in an orderly way.
 
-`kubectl create --filename manifests/prometheus-configmap.yaml`
+`kubectl create namespace monitoring`
+
+Second, we need to create the configuration for our Prometheus. For this we use a Config Map, which we later mount into our Prometheus pod to configure it. This way we can change the configuration without having to redeploy Prometheus itself.
+
+`kubectl --namespace monitoring create --filename manifests/prometheus-configmap.yaml`
 
 Then, we create a service to be able to access Prometheus.
 
-`kubectl create --filename manifests/prometheus-services.yaml`
+`kubectl --namespace monitoring create --filename manifests/prometheus-services.yaml`
 
 Finally, we can deploy Prometheus itself.
 
-`kubectl create --filename manifests/prometheus-deployment.yaml`
+`kubectl --namespace monitoring create --filename manifests/prometheus-deployment.yaml`
 
 Further, we need the Prometheus Node Exporter deployed to each node. For this we use a Daemon Set and a fronting service for Prometheus to be able to access the node exporters.
 
 ```
-kubectl create --filename manifests/node-exporter-service.yaml
-kubectl create --filename manifests/node-exporter-daemonset.yaml
+kubectl --namespace monitoring create --filename manifests/node-exporter-service.yaml
+kubectl --namespace monitoring create --filename manifests/node-exporter-daemonset.yaml
 ```
 
 Wait a bit for all the pods to come up. Then Prometheus should be ready and running. We can check the Prometheus targets at https://mycluster.k8s.gigantic.io/api/v1/proxy/namespaces/default/services/prometheus/targets
@@ -44,8 +49,8 @@ Now that we have Prometheus up and running we can deploy Grafana to have a nicer
 Again, we create a service to be able to access Grafana and a deployment to manage the pods.
 
 ```
-kubectl create --filename manifests/grafana-services.yaml
-kubectl create --filename manifests/grafana-deployment.yaml
+kubectl --namespace monitoring create --filename manifests/grafana-services.yaml
+kubectl --namespace monitoring create --filename manifests/grafana-deployment.yaml
 ```
 
 Wait a bit for Grafana to come up. Then you can access Grafana at https://mycluster.k8s.gigantic.io/api/v1/proxy/namespaces/default/services/grafana/
@@ -55,7 +60,7 @@ Wait a bit for Grafana to come up. Then you can access Grafana at https://myclus
 TLDR: If you don't want to go through all the manual steps below you can let the following job use the API to configure Grafana to a similar state.
 
 ```bash
-kubectl create --filename manifests/grafana-import-dashboards-job.yaml
+kubectl --namespace monitoring create --filename manifests/grafana-import-dashboards-job.yaml
 ```
 
 Once we're in Grafana we need to first configure [Prometheus](https://grafana.net/plugins/prometheus) as a data source.

@@ -1,7 +1,5 @@
 # Kubernetes Setup for Prometheus and Grafana
 
-> Work in progress. Please fix me :)
-
 ## Quick start
 
 To quickly start all the things just do this:

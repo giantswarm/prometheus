@@ -1,3 +1,12 @@
++++
+title = "Monitoring with Prometheus and Grafana"
+description = "TODO: Add description"
+date = "2016-09-29"
+type = "page"
+weight = 100
+categories = ["recipes"]
++++
+
 # Prometheus & Grafana
 
 [Prometheus](https://prometheus.io/) is an open-source monitoring solution that includes the gathering of metrics, their storage in an internal time series database as well as querying and alerting based on that data.

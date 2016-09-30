@@ -1,6 +1,6 @@
 +++
 title = "Monitoring with Prometheus and Grafana"
-description = "TODO: Add description"
+description = "Recipe to spin up a monitoring setup with Prometheus and Grafana on Kubernetes."
 date = "2016-09-29"
 type = "page"
 weight = 100

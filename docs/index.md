@@ -25,26 +25,46 @@ kubectl create --filename manifests/
 
 First, we need to create the configuration for our Prometheus. For this we use a Config Map, which we later mount into our Prometheus pod to configure it. This way we can change the configuration without having to redeploy Prometheus itself.
 
-`kubectl create --filename manifests/prometheus-configmap.yaml`
+`kubectl create --filename manifests/prometheus-core-configmap.yaml`
 
 Then, we create a service to be able to access Prometheus.
 
-`kubectl create --filename manifests/prometheus-services.yaml`
+`kubectl create --filename manifests/prometheus-core-service.yaml`
 
 Finally, we can deploy Prometheus itself.
 
-`kubectl create --filename manifests/prometheus-deployment.yaml`
+`kubectl create --filename manifests/prometheus-core-deployment.yaml`
 
 Further, we need the Prometheus Node Exporter deployed to each node. For this we use a Daemon Set and a fronting service for Prometheus to be able to access the node exporters.
 
 ```
-kubectl create --filename manifests/node-exporter-service.yaml
-kubectl create --filename manifests/node-exporter-daemonset.yaml
+kubectl create --filename manifests/prometheus-node-exporter-service.yaml
+kubectl create --filename manifests/prometheus-node-exporter-daemonset.yaml
 ```
 
 Wait a bit for all the pods to come up. Then Prometheus should be ready and running. We can check the Prometheus targets at https://mycluster.k8s.gigantic.io/api/v1/proxy/namespaces/default/services/prometheus/targets
 
 ![Prometheus Targets](prometheus_targets.png)
+
+## Deploying Alertmanager
+we need to create the configuration for our Alertmanager. For this we use a Config Map, which we later mount into our Alertmanager pod to configure it. This way we can change the configuration without having to redeploy Alertmanager itself.
+
+`kubectl create --filename manifests/prometheus-alert-configmap.yaml`
+
+Then, we create a service to be able to access Alertmanager.
+
+`kubectl create --filename manifests/prometheus-alert-service.yaml`
+
+Finally, we can deploy Alertmanager itself.
+
+`kubectl create --filename manifests/prometheus-alert-deployment.yaml`
+
+
+Wait a bit for all the pods to come up. Then Alertmanager should be ready and running. We can check the Alertmanager targets at
+https://mycluster.k8s.gigantic.io/api/v1/proxy/namespaces/default/services/alertmanager/
+
+![Alertmanager](alertmanager.png)
+
 
 ## Deploying Grafana
 
@@ -105,4 +125,4 @@ Next, you should get into the [Grafana](http://docs.grafana.org/) and [Prometheu
 
 You can also check out grafana.net for some more example [dashboards](https://grafana.net/dashboards) and [plugins](https://grafana.net/plugins).
 
-You might also want to set up some [alerting](https://prometheus.io/docs/alerting/overview/).
+More Alertmanager documentations in [here](https://prometheus.io/docs/alerting/overview/)

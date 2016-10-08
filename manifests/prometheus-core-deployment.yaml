@@ -20,11 +20,12 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.1.2
+        image: prom/prometheus:v1.1.3
         args:
           - '-storage.local.retention=6h'
           - '-storage.local.memory-chunks=500000'
           - '-config.file=/etc/prometheus/prometheus.yml'
+          - '-alertmanager.url=http://alertmanager:9093'
         ports:
         - name: webui
           containerPort: 9090

@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus-alert
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+      component: alert
+  template:
+    metadata:
+      name: alertmanager
+      labels:
+        app: prometheus
+        component: alert
+    spec:
+      containers:
+      - name: alertmanager
+        image: prom/alertmanager:v0.4.2
+        args:
+          - '-config.file=/etc/alertmanager/config.yml'
+          - '-storage.path=/alertmanager'
+        ports:
+        - name: alertmanager
+          containerPort: 9093
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/alertmanager
+        - name: alertmanager
+          mountPath: /prometheus
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-alert
+      - name: alertmanager
+        emptyDir: {}

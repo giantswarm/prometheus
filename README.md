@@ -20,21 +20,26 @@ kubectl delete namespace monitoring
 Alternatively follow these steps to get a feeling for the different components of this setup:
 
 ```bash
-kubectl create --filename manifests/prometheus-configmap.yaml
+kubectl create --filename manifests/prometheus-core-configmap.yaml
 # kubectl get configmaps
 # kubectl delete configmaps/prometheus
 
-kubectl create --filename manifests/prometheus-service.yaml
+kubectl create --filename manifests/prometheus-core-service.yaml
 # kubectl get services/prometheus
 # minikube service prometheus
 
-kubectl create --filename manifests/prometheus-deployment.yaml
+kubectl create --filename manifests/prometheus-core-deployment.yaml
 # kubectl get --all-namespaces --output wide pods
 # kubectl logs prometheus-2556266794-sd260
 # kubectl delete pods/prometheus-2556266794-sd260
 
 kubectl create --filename manifests/node-exporter-service.yaml
 kubectl create --filename manifests/node-exporter-daemonset.yaml
+
+# create Alertmanager
+kubectl create --filename manifests/prometheus-alert-configmap.yaml
+kubectl create --filename manifests/prometheus-alert-service.yaml
+kubectl create --filename manifests/prometheus-alert-deployment.yaml
 
 kubectl create --filename manifests/grafana-service.yaml
 # kubectl get services/grafana

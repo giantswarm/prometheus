@@ -14,7 +14,7 @@ spec:
         component: core
     spec:
       containers:
-        - image: grafana/grafana:3.1.0
+        - image: grafana/grafana:3.1.1
           name: grafana-core
           # env:
           resources:
@@ -38,7 +38,7 @@ spec:
             - name: GF_AUTH_ANONYMOUS_ORG_ROLE
               value: Admin
             # - name: GF_SERVER_ROOT_URL
-            #   value: /api/v1/proxy/namespaces/kube-system/services/monitoring-grafana/
+            #   value: /api/v1/proxy/namespaces/monitoring/services/grafana/
           volumeMounts:
           - name: grafana-persistent-storage
             mountPath: /var

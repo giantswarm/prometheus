@@ -16,7 +16,7 @@ spec:
         component: core
     spec:
       containers:
-        - image: grafana/grafana:3.1.0
+        - image: grafana/grafana:3.1.1
           name: grafana-core
           # env:
           resources:
@@ -40,7 +40,7 @@ spec:
             - name: GF_AUTH_ANONYMOUS_ORG_ROLE
               value: Admin
             # - name: GF_SERVER_ROOT_URL
-            #   value: /api/v1/proxy/namespaces/kube-system/services/monitoring-grafana/
+            #   value: /api/v1/proxy/namespaces/monitoring/services/grafana/
           volumeMounts:
           - name: grafana-persistent-storage
             mountPath: /var
@@ -151,6 +151,177 @@ spec:
           name: grafana-import-dashboards
 ---
 # based on the content created by:
+# kubectl create configmap prometheus-alert --from-file=manifests/prometheus-alert-configmap --output yaml > manifests/prometheus-alert-configmap.yaml
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: prometheus-alert
+  labels:
+    app: prometheus
+    component: alert
+data:
+  config.yml: |-
+    global:
+      # ResolveTimeout is the time after which an alert is declared resolved
+      # if it has not been updated.
+      resolve_timeout: 5m
+
+      # The smarthost and SMTP sender used for mail notifications.
+      smtp_smarthost: 'smtp.localhost:25'
+      smtp_from: 'alertmanager@example.org'
+      smtp_auth_username: 'alertmanager'
+      smtp_auth_password: 'password'
+      smtp_require_tls: true
+
+      # The API URL to use for Slack notifications.
+      slack_api_url: 'global.slack_api_url'
+
+      # # The auth token for Hipchat.
+      # hipchat_auth_token: '1234556789'
+      #
+      # # Alternative host for Hipchat.
+      # hipchat_url: 'https://hipchat.foobar.org/'
+
+    # # The directory from which notification templates are read.
+    # templates:
+    # - '/etc/alertmanager/template/*.tmpl'
+
+    # The root route on which each incoming alert enters.
+    route:
+
+      # The labels by which incoming alerts are grouped together. For example,
+      # multiple alerts coming in for cluster=A and alertname=LatencyHigh would
+      # be batched into a single group.
+
+      group_by: ['alertname', 'cluster', 'service']
+
+      # When a new group of alerts is created by an incoming alert, wait at
+      # least 'group_wait' to send the initial notification.
+      # This way ensures that you get multiple alerts for the same group that start
+      # firing shortly after another are batched together on the first
+      # notification.
+
+      group_wait: 30s
+
+      # When the first notification was sent, wait 'group_interval' to send a batch
+      # of new alerts that started firing for that group.
+
+      group_interval: 5m
+
+      # If an alert has successfully been sent, wait 'repeat_interval' to
+      # resend them.
+
+      repeat_interval: 3h
+
+      # A default receiver
+
+      # If an alert isn't caught by a route, send it to default.
+      receiver: default
+
+      # All the above attributes are inherited by all child routes and can
+      # overwritten on each.
+
+      # The child route trees.
+      routes:
+      # Send severity=slack alerts to slack.
+      - match:
+          severity: slack
+        receiver: slack_alert
+      - match:
+          severity: email
+        receiver: email_alert
+
+    receivers:
+    - name: 'default'
+      slack_configs:
+      - channel: '#alerts'
+
+    - name: 'slack_alert'
+      slack_configs:
+      - channel: '#alerts'
+
+        # # Whether or not to notify about resolved alerts.
+        # send_resolved: true
+        #
+        # # The Slack webhook URL.
+        # [ api_url: <string> | default = global.slack_api_url ]
+        #
+        # # The channel or user to send notifications to.
+        # channel: <tmpl_string>
+        #
+        # # API request data as defined by the Slack webhook API.
+        # [ color: <tmpl_string> | default = '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}' ]
+        # [ username: <tmpl_string> | default = '{{ template "slack.default.username" . }}'
+        # [ title: <tmpl_string> | default = '{{ template "slack.default.title" . }}' ]
+        # [ title_link: <tmpl_string> | default = '{{ template "slack.default.titlelink" . }}' ]
+        # [ icon_emoji: <tmpl_string> ]
+        # [ pretext: <tmpl_string> | default = '{{ template "slack.default.pretext" . }}' ]
+        # [ text: <tmpl_string> | default = '{{ template "slack.default.text" . }}' ]
+        # [ fallback: <tmpl_string> | default = '{{ template "slack.default.fallback" . }}' ]
+
+    - name: 'email_alert'
+      email_configs:
+      - to: 'opsteam@example.org'
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus-alert
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+      component: alert
+  template:
+    metadata:
+      name: alertmanager
+      labels:
+        app: prometheus
+        component: alert
+    spec:
+      containers:
+      - name: alertmanager
+        image: prom/alertmanager:v0.4.2
+        args:
+          - '-config.file=/etc/alertmanager/config.yml'
+          - '-storage.path=/alertmanager'
+        ports:
+        - name: alertmanager
+          containerPort: 9093
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/alertmanager
+        - name: alertmanager
+          mountPath: /prometheus
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-alert
+      - name: alertmanager
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  labels:
+    app: prometheus
+    component: alert
+  annotations:
+    prometheus.io/scrape: 'true'
+spec:
+  selector:
+    app: prometheus
+    component: alert
+  type: NodePort
+  ports:
+  - port: 9093
+    nodePort: 30093
+    protocol: TCP
+---
+# based on the content created by:
 # kubectl create configmap prometheus-core --from-file=manifests/prometheus-core-configmap --output yaml > manifests/prometheus-core-configmap.yaml
 
 apiVersion: v1
@@ -161,11 +332,24 @@ metadata:
     app: prometheus
     component: core
 data:
+  prometheus-alert.rules: |
+    # Alert for any instance that is unreachable for >5 minutes.
+    ALERT InstanceDown
+      IF up == 0
+      FOR 5m
+      LABELS { severity = "email" }
+      ANNOTATIONS {
+        summary = "Instance {{ $labels.instance }} down",
+        description = "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.",
+      }
   prometheus.yml: |
     global:
       scrape_interval: 10s
       scrape_timeout: 10s
       evaluation_interval: 10s
+
+    rule_files:
+      - '/etc/prometheus/prometheus-alert.rules'
 
     scrape_configs:
 
@@ -307,11 +491,12 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.1.2
+        image: prom/prometheus:v1.1.3
         args:
           - '-storage.local.retention=6h'
           - '-storage.local.memory-chunks=500000'
           - '-config.file=/etc/prometheus/prometheus.yml'
+          - '-alertmanager.url=http://alertmanager:9093'
         ports:
         - name: webui
           containerPort: 9090

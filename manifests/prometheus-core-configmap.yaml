@@ -9,11 +9,24 @@ metadata:
     app: prometheus
     component: core
 data:
+  prometheus-alert.rules: |
+    # Alert for any instance that is unreachable for >5 minutes.
+    ALERT InstanceDown
+      IF up == 0
+      FOR 5m
+      LABELS { severity = "email" }
+      ANNOTATIONS {
+        summary = "Instance {{ $labels.instance }} down",
+        description = "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.",
+      }
   prometheus.yml: |
     global:
       scrape_interval: 10s
       scrape_timeout: 10s
       evaluation_interval: 10s
+
+    rule_files:
+      - '/etc/prometheus/prometheus-alert.rules'
 
     scrape_configs:
 

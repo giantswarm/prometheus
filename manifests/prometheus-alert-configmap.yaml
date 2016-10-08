@@ -1,0 +1,113 @@
+# based on the content created by:
+# kubectl create configmap prometheus-alert --from-file=manifests/prometheus-alert-configmap --output yaml > manifests/prometheus-alert-configmap.yaml
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: prometheus-alert
+  labels:
+    app: prometheus
+    component: alert
+data:
+  config.yml: |-
+    global:
+      # ResolveTimeout is the time after which an alert is declared resolved
+      # if it has not been updated.
+      resolve_timeout: 5m
+
+      # The smarthost and SMTP sender used for mail notifications.
+      smtp_smarthost: 'smtp.localhost:25'
+      smtp_from: 'alertmanager@example.org'
+      smtp_auth_username: 'alertmanager'
+      smtp_auth_password: 'password'
+      smtp_require_tls: true
+
+      # The API URL to use for Slack notifications.
+      slack_api_url: 'global.slack_api_url'
+
+      # # The auth token for Hipchat.
+      # hipchat_auth_token: '1234556789'
+      #
+      # # Alternative host for Hipchat.
+      # hipchat_url: 'https://hipchat.foobar.org/'
+
+    # # The directory from which notification templates are read.
+    # templates:
+    # - '/etc/alertmanager/template/*.tmpl'
+
+    # The root route on which each incoming alert enters.
+    route:
+
+      # The labels by which incoming alerts are grouped together. For example,
+      # multiple alerts coming in for cluster=A and alertname=LatencyHigh would
+      # be batched into a single group.
+
+      group_by: ['alertname', 'cluster', 'service']
+
+      # When a new group of alerts is created by an incoming alert, wait at
+      # least 'group_wait' to send the initial notification.
+      # This way ensures that you get multiple alerts for the same group that start
+      # firing shortly after another are batched together on the first
+      # notification.
+
+      group_wait: 30s
+
+      # When the first notification was sent, wait 'group_interval' to send a batch
+      # of new alerts that started firing for that group.
+
+      group_interval: 5m
+
+      # If an alert has successfully been sent, wait 'repeat_interval' to
+      # resend them.
+
+      repeat_interval: 3h
+
+      # A default receiver
+
+      # If an alert isn't caught by a route, send it to default.
+      receiver: default
+
+      # All the above attributes are inherited by all child routes and can
+      # overwritten on each.
+
+      # The child route trees.
+      routes:
+      # Send severity=slack alerts to slack.
+      - match:
+          severity: slack
+        receiver: slack_alert
+      - match:
+          severity: email
+        receiver: email_alert
+
+    receivers:
+    - name: 'default'
+      slack_configs:
+      - channel: '#alerts'
+
+    - name: 'slack_alert'
+      slack_configs:
+      - channel: '#alerts'
+
+        # # Whether or not to notify about resolved alerts.
+        # send_resolved: true
+        #
+        # # The Slack webhook URL.
+        # [ api_url: <string> | default = global.slack_api_url ]
+        #
+        # # The channel or user to send notifications to.
+        # channel: <tmpl_string>
+        #
+        # # API request data as defined by the Slack webhook API.
+        # [ color: <tmpl_string> | default = '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}' ]
+        # [ username: <tmpl_string> | default = '{{ template "slack.default.username" . }}'
+        # [ title: <tmpl_string> | default = '{{ template "slack.default.title" . }}' ]
+        # [ title_link: <tmpl_string> | default = '{{ template "slack.default.titlelink" . }}' ]
+        # [ icon_emoji: <tmpl_string> ]
+        # [ pretext: <tmpl_string> | default = '{{ template "slack.default.pretext" . }}' ]
+        # [ text: <tmpl_string> | default = '{{ template "slack.default.text" . }}' ]
+        # [ fallback: <tmpl_string> | default = '{{ template "slack.default.fallback" . }}' ]
+
+    - name: 'email_alert'
+      email_configs:
+      - to: 'opsteam@example.org'

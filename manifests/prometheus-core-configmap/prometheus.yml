@@ -3,6 +3,9 @@ global:
   scrape_timeout: 10s
   evaluation_interval: 10s
 
+rule_files:
+  - '/etc/prometheus/prometheus-alert.rules'
+
 scrape_configs:
 
   # # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L10

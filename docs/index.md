@@ -25,17 +25,17 @@ kubectl apply --filename https://raw.githubusercontent.com/giantswarm/kubernetes
 
 ## Checking Prometheus
 
-Wait a bit for all the pods to come up. Then Prometheus should be ready and running. We can check the Prometheus targets at https://api.<cluster-id>.k8s.gigantic.io/api/v1/proxy/namespaces/default/services/prometheus:9090/targets
+Wait a bit for all the pods to come up. Then Prometheus should be ready and running. We can check the Prometheus targets at `https://api.<cluster-id>.k8s.gigantic.io/api/v1/proxy/namespaces/default/services/prometheus:9090/targets`
 
 ![Prometheus Targets](prometheus_targets.png)
 
-*Note*: The above URL uses your Kubernetes API to proxy to the service. As the API is guarded with your credentials, you need to [set them up in your system](/guides/accessing-services-from-the-outside/) (and/or browser). We do not recommend to set up an Ingress for Prometheus at this time, as it currently does not support any kind of authentification and thus your cluster would be open to everyone.
+*Note*: The above URL uses your Kubernetes API to proxy to the service. As the API is guarded with your credentials, you need to [set them up in your system](/guides/accessing-services-from-the-outside/) (and/or browser). We do not recommend to set up an Ingress for Prometheus at this time, as it currently does not support any kind of authentication and thus your cluster would be open to everyone.
 
 ## Checking Grafana
 
 Now that we know Prometheus is up and running we can check for Grafana.
 
-There's an ingress set up for Grafana, so it should be available at https://http://grafana.monitoring.<cluster-id>.k8s.gigantic.io/
+There's an Ingress set up for Grafana, so it should be available at `https://http://grafana.monitoring.<cluster-id>.k8s.gigantic.io/`
 
 You can user the default admin (`admin:admin`) user for your first login. You should this admin user to reflect your desired username, your email, and a secure password ASAP!
 
@@ -45,7 +45,7 @@ You can change the default admin user at http://grafana.monitoring.<cluster-id>.
 
 ![Grafana Datasource](grafana_edit_admin.png)
 
-Please note, that you need to update the Password and the user data (username, email, etc.) separately with the respective update buttons below each section.
+Please note, that you need to update the password and the user data (username, email, etc.) separately with the respective update buttons below each section.
 
 ## Check out your dashboards
 

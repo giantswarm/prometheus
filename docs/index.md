@@ -1,7 +1,7 @@
 +++
 title = "Monitoring with Prometheus and Grafana"
 description = "Recipe to spin up a monitoring setup with Prometheus and Grafana on Kubernetes."
-date = "2016-09-29"
+date = "2016-10-14"
 type = "page"
 weight = 100
 categories = ["recipes"]
@@ -15,87 +15,41 @@ It offers a lot of integrations incl. Docker, Kubernetes, etc.
 
 Prometheus can also visualize your data. However, in this recipe we include another open-source tool, [Grafana](http://grafana.org/), for the visualization part, as it offers a more powerful and flexible way to generate visuals and dashboards.
 
-If you just want to get Prometheus and Grafana up and running you can deploy the whole recipe with a single command instead of going through all steps detailed out below:
+## Deploying Prometheus and Grafana
+
+The following command will set you up with all neccesary components and some first dashboards to check out.
 
 ```bash
-kubectl create --filename manifests/
+kubectl apply --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests-all.yaml
 ```
 
-## Deploying Prometheus
+## Checking Prometheus
 
-First, we need to create the configuration for our Prometheus. For this we use a Config Map, which we later mount into our Prometheus pod to configure it. This way we can change the configuration without having to redeploy Prometheus itself.
-
-`kubectl create --filename manifests/prometheus-configmap.yaml`
-
-Then, we create a service to be able to access Prometheus.
-
-`kubectl create --filename manifests/prometheus-services.yaml`
-
-Finally, we can deploy Prometheus itself.
-
-`kubectl create --filename manifests/prometheus-deployment.yaml`
-
-Further, we need the Prometheus Node Exporter deployed to each node. For this we use a Daemon Set and a fronting service for Prometheus to be able to access the node exporters.
-
-```
-kubectl create --filename manifests/node-exporter-service.yaml
-kubectl create --filename manifests/node-exporter-daemonset.yaml
-```
-
-Wait a bit for all the pods to come up. Then Prometheus should be ready and running. We can check the Prometheus targets at https://mycluster.k8s.gigantic.io/api/v1/proxy/namespaces/default/services/prometheus/targets
+Wait a bit for all the pods to come up. Then Prometheus should be ready and running. We can check the Prometheus targets at `https://api.<cluster-id>.k8s.gigantic.io/api/v1/proxy/namespaces/default/services/prometheus:9090/targets`
 
 ![Prometheus Targets](prometheus_targets.png)
 
-## Deploying Grafana
+*Note*: The above URL uses your Kubernetes API to proxy to the service. As the API is guarded with your credentials, you need to [set them up in your system](/guides/accessing-services-from-the-outside/) (and/or browser). We do not recommend to set up an Ingress for Prometheus at this time, as it currently does not support any kind of authentication and thus your cluster would be open to everyone.
 
-Now that we have Prometheus up and running we can deploy Grafana to have a nicer frontend for our metrics.
+## Checking Grafana
 
-Again, we create a service to be able to access Grafana and a deployment to manage the pods.
+Now that we know Prometheus is up and running we can check for Grafana.
 
-```
-kubectl create --filename manifests/grafana-services.yaml
-kubectl create --filename manifests/grafana-deployment.yaml
-```
+There's an Ingress set up for Grafana, so it should be available at `https://http://grafana.monitoring.<cluster-id>.k8s.gigantic.io/`
 
-Wait a bit for Grafana to come up. Then you can access Grafana at https://mycluster.k8s.gigantic.io/api/v1/proxy/namespaces/default/services/grafana/
+You can user the default admin (`admin:admin`) user for your first login. You should this admin user to reflect your desired username, your email, and a secure password ASAP!
 
-## Setting Up Grafana
+## Changing the admin
 
-TLDR: If you don't want to go through all the manual steps below you can let the following job use the API to configure Grafana to a similar state.
+You can change the default admin user at http://grafana.monitoring.<cluster-id>.k8s.gigantic.io/admin/users/edit/1
 
-```bash
-kubectl create --filename manifests/grafana-import-dashboards-job.yaml
-```
+![Grafana Datasource](grafana_edit_admin.png)
 
-Once we're in Grafana we need to first configure [Prometheus](https://grafana.net/plugins/prometheus) as a data source.
+Please note, that you need to update the password and the user data (username, email, etc.) separately with the respective update buttons below each section.
 
-- `Grafana UI / Data Sources / Add data source`
-	- `Name`: `prometheus`
-	- `Type`: `Prometheus`
-	- `Url`: `http://prometheus:9090`
-	- `Add`
+## Check out your dashboards
 
-![Grafana Datasource](grafana_datasource.png)
-
-Then go to the Dashboards tab and import the [Prometheus Stats dashboard](https://grafana.net/dashboards/2), which shows the status of Prometheus itself.
-
-![Grafana Datasource Dashboard](grafana_datasource_dashboard.png)
-
-You can check it out to see how your Prometheus is doing.
-
-![Grafana Datasource Dashboard](grafana_prometheus_stats.png)
-
-Last, but not least we can import a sample [Kubernetes cluster monitoring dashboard](https://grafana.net/dashboards/162), to get a first overview over our cluster metrics.
-
--  `Grafana UI / Dashboards / Import`
-	- `Grafana.net Dashboard`: `https://grafana.net/dashboards/162`
-	- `Load`
-	- `Prometheus`: `prometheus`
-	- `Save & Open`
-
-![Grafana Import Dashboard](grafana_import_dashboard.png)
-
-Voilá. You have a nice first dashboard with metrics of your Kubernetes cluster.
+You can now checkout the included dashboards, e.g. the [Cluster Monitoring Overview](http://grafana.monitoring.l8.k8s.gigantic.io/dashboard/db/kubernetes-cluster-monitoring-via-prometheus).
 
 ![Grafana Import Dashboard](grafana_cluster_overview.png)
 

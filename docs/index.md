@@ -1,7 +1,7 @@
 +++
 title = "Monitoring with Prometheus and Grafana"
 description = "Recipe to spin up a monitoring setup with Prometheus and Grafana on Kubernetes."
-date = "2016-09-29"
+date = "2016-10-14"
 type = "page"
 weight = 100
 categories = ["recipes"]

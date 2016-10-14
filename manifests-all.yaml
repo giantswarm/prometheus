@@ -16,7 +16,7 @@ spec:
         component: core
     spec:
       containers:
-        - image: grafana/grafana:3.1.0
+        - image: grafana/grafana:3.1.1
           name: grafana-core
           # env:
           resources:
@@ -28,17 +28,13 @@ spec:
               cpu: 100m
               memory: 100Mi
           env:
-            # This variable is required to setup templates in Grafana.
-              # The following env variables are required to make Grafana accessible via
-              # the kubernetes api-server proxy. On production clusters, we recommend
-              # removing these env variables, setup auth for grafana, and expose the grafana
-              # service using a LoadBalancer or a public IP.
+            # The following env variables set up basic auth twith the default admin user and admin password.
             - name: GF_AUTH_BASIC_ENABLED
-              value: "false"
-            - name: GF_AUTH_ANONYMOUS_ENABLED
               value: "true"
-            - name: GF_AUTH_ANONYMOUS_ORG_ROLE
-              value: Admin
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "false"
+            # - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+            #   value: Admin
             # - name: GF_SERVER_ROOT_URL
             #   value: /api/v1/proxy/namespaces/kube-system/services/monitoring-grafana/
           volumeMounts:
@@ -47,6 +43,15 @@ spec:
       volumes:
       - name: grafana-persistent-storage
         emptyDir: {}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: grafana
+spec:
+  backend:
+    serviceName: grafana
+    servicePort: 3000
 ---
 apiVersion: v1
 kind: Service
@@ -117,14 +122,14 @@ spec:
         args:
           # FIXME use kubernetes probe instead of "until curl"
           - >
-            until $(curl --silent --fail --show-error --output /dev/null http://grafana:3000/api/datasources); do
+            until $(curl --silent --fail --show-error --output /dev/null http://admin:admin@grafana:3000/api/datasources); do
               printf '.' ; sleep 1 ;
             done ;
             for file in *-datasource.json ; do
               if [ -e "$file" ] ; then
                 echo "importing $file" &&
                 curl --silent --fail --show-error \
-                  --request POST http://grafana:3000/api/datasources \
+                  --request POST http://admin:admin@grafana:3000/api/datasources \
                   --header "Content-Type: application/json" \
                   --data-binary "@$file" ;
                 echo "" ;
@@ -134,7 +139,7 @@ spec:
               if [ -e "$file" ] ; then
                 echo "importing $file" &&
                 curl --silent --fail --show-error \
-                  --request POST http://grafana:3000/api/dashboards/import \
+                  --request POST http://admin:admin@grafana:3000/api/dashboards/import \
                   --header "Content-Type: application/json" \
                   --data-binary "@$file" ;
                 echo "" ;

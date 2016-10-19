@@ -73,6 +73,22 @@ Instead of manually configuring the datasource and dashboards you can run the fo
 kubectl create --filename manifests/grafana-import-dashboards-job.yaml
 ```
 
+# Ingress
+
+Create some [self signed certificates](certs/) for the url `grafana.local.net` first.
+
+We need to provide `certs/server.pem` and `certs/server-key.pem` for our url to the [Ingress Controller](https://github.com/giantswarm/kubernetes-ingress).
+
+This is done by creating a `secret` named `grafana-tls-secret`:
+
+```bash
+kubectl --namespace monitoring create secret generic grafana-tls-secret \
+  --from-file=certs/tls.crt=server.pem \
+  --from-file=certs/tls.key=server-key.pem
+```
+
+We can now reference this `secret` in our ingress under `spec.tls`.
+
 
 # Create one single manifest file
 

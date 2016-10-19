@@ -8,6 +8,8 @@ metadata:
     app: prometheus
     component: node-exporter
 spec:
+  # see http://kubernetes.io/docs/user-guide/services/#with-selectors
+  type: ClusterIP
   clusterIP: None
   ports:
     - name: prometheus-node-exporter
@@ -16,4 +18,3 @@ spec:
   selector:
     app: prometheus
     component: node-exporter
-  type: ClusterIP

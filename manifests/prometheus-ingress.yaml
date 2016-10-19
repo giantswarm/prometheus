@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+    component: ingress
+  # annotations:
+  #   kubernetes.io/tls-acme: "true"
+spec:
+  # tls:
+  # - secretName: prometheus-tls
+  #   hosts:
+  #   - prometheus.monitoring.minikube.localnet
+  rules:
+  - host: prometheus.monitoring.minikube.localnet
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: prometheus
+          servicePort: 9090

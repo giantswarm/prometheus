@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+    component: ingress
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    # ingress.kubernetes.io/auth-type: basic
+    # ingress.kubernetes.io/auth-secret: secretName
+    # ingress.kubernetes.io/auth-realm: "realm string"
+spec:
+  tls:
+  - secretName: grafana-tls
+    hosts:
+    - grafana.monitoring.minikube.localnet
+  rules:
+  - host: grafana.monitoring.minikube.localnet
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: grafana
+          servicePort: 3000
+  # backend:
+  #   serviceName: grafana
+  #   servicePort: 3000

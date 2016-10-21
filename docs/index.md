@@ -1,7 +1,7 @@
 +++
 title = "Monitoring with Prometheus and Grafana"
 description = "Recipe to spin up a monitoring setup with Prometheus and Grafana on Kubernetes."
-date = "2016-10-14"
+date = "2016-10-21"
 type = "page"
 weight = 100
 categories = ["recipes"]
@@ -39,6 +39,8 @@ There's an Ingress set up for Grafana, so it should be available at `https://htt
 
 You can user the default admin (`admin:admin`) user for your first login. You should this admin user to reflect your desired username, your email, and a secure password ASAP!
 
+_Note:_ If persistent storage is not set up in your cluster, changes like the above will be reset to defaults if the Grafana Pod gets rescheduled. You would need to set them again after that.
+
 ## Changing the admin
 
 You can change the default admin user at http://grafana.monitoring.<cluster-id>.k8s.gigantic.io/admin/users/edit/1
@@ -52,6 +54,13 @@ Please note, that you need to update the password and the user data (username, e
 You can now checkout the included dashboards, e.g. the [Cluster Monitoring Overview](http://grafana.monitoring.l8.k8s.gigantic.io/dashboard/db/kubernetes-cluster-monitoring-via-prometheus).
 
 ![Grafana Import Dashboard](grafana_cluster_overview.png)
+
+_Note:_ If persistent storage is not set up in your cluster, the preset datasource and dashboards will vanish if the Grafana Pod gets rescheduled. To get them back run:
+
+```bash
+kubectl --namespace=monitoring delete job grafana-import-dashboards
+kubectl --namespace=monitoring create --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests/grafana-import-dashboards-job.yaml
+```
 
 ## Next Steps
 

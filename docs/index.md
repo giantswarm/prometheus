@@ -57,7 +57,7 @@ You can now checkout the included dashboards, e.g. the [Cluster Monitoring Overv
 
 _Note:_ If persistent storage is not set up in your cluster, the preset datasource and dashboards will vanish if the Grafana Pod gets rescheduled. To get them back run:
 
-```bash
+```nohighlight
 kubectl --namespace=monitoring delete job grafana-import-dashboards
 kubectl --namespace=monitoring create --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests/grafana-import-dashboards-job.yaml
 ```

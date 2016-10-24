@@ -1,10 +1,11 @@
 # based on the content created by:
-# kubectl create configmap grafana-import-dashboards --from-file=manifests/grafana-import-dashboards-configmap --output yaml
+# kubectl create configmap grafana-import-dashboards --from-file=configs/grafana --output yaml
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-import-dashboards
+  namespace: monitoring
   labels:
     app: grafana
     component: import-dashboards

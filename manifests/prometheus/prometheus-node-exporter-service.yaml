@@ -4,6 +4,7 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
   name: prometheus-node-exporter
+  namespace: monitoring
   labels:
     app: prometheus
     component: node-exporter

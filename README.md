@@ -79,11 +79,9 @@ kubectl create --filename manifests/grafana-import-dashboards-job.yaml
 ```bash
 target="./manifests-all.yaml"
 rm "$target"
-printf -- "# Derived from ./manifests/*.yaml\n---\n" >> "$target"
-for file in ./manifests/*.yaml ; do
-  if [ -e "$file" ] ; then
-     cat "$file" >> "$target"
-     printf -- "---\n" >> "$target"
-  fi
+echo "# Derived from ./manifests" >> "$target"
+for file in $(find ./manifests -type f -name "*.yaml") ; do
+  echo "---" >> "$target"
+  cat "$file" >> "$target"
 done
 ```

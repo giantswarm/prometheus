@@ -1,10 +1,11 @@
 # based on the content created by:
-# kubectl create configmap prometheus-core --from-file=manifests/prometheus-core-configmap --output yaml > manifests/prometheus-core-configmap.yaml
+# kubectl create configmap prometheus-core --from-file=configs/prometheus --output yaml > prometheus-core-configmap.yaml
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-core
+  namespace: monitoring
   labels:
     app: prometheus
     component: core

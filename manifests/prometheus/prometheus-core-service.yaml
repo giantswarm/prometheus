@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus
+  namespace: monitoring
   labels:
     app: prometheus
     component: core
@@ -11,7 +12,6 @@ spec:
   type: NodePort
   ports:
     - port: 9090
-      nodePort: 30900
       protocol: TCP
       name: webui
   selector:

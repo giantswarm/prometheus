@@ -2,6 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: grafana-import-dashboards
+  namespace: monitoring
   labels:
     app: grafana
     component: import-dashboards

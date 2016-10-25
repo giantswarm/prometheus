@@ -22,6 +22,11 @@ If you want to re-import the default dashboards from this setup run this job:
 kubectl apply --filename ./manifests/grafana/grafana-import-dashboards-job.yaml
 ```
 
+In case the job already exists from an earlier run, delete it before:
+```bash
+kubectl --namespace monitoring delete job grafana-import-dashboards
+```
+
 
 ## More Dashboards
 

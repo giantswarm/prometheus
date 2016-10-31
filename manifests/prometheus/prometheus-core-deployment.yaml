@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.2.1
+        image: prom/prometheus:v1.2.2
         args:
           - '-storage.local.retention=6h'
           - '-storage.local.memory-chunks=500000'
@@ -29,6 +29,13 @@ spec:
         ports:
         - name: webui
           containerPort: 9090
+        resources:
+          requests:
+            cpu: 500m
+            memory: 500M
+          limits:
+            cpu: 500m
+            memory: 500M
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus

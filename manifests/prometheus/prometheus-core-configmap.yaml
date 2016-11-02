@@ -18,27 +18,13 @@ data:
 
     scrape_configs:
 
-      # # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L10
-      # - job_name: 'kubernetes-apiserver'
-      #   tls_config:
-      #     ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-      #   bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-      #   kubernetes_sd_configs:
-      #     - api_servers:
-      #         - 'https://kubernetes.default.svc'
-      #       in_cluster: true
-      #       role: apiserver
-
       # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L37
       - job_name: 'kubernetes-nodes'
         tls_config:
           ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
         kubernetes_sd_configs:
-          - api_servers:
-              - 'https://kubernetes.default.svc'
-            in_cluster: true
-            role: node
+          - role: node
         relabel_configs:
           - source_labels: [__address__]
             regex: '(.*):10250'
@@ -48,10 +34,7 @@ data:
       # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L79
       - job_name: 'kubernetes-endpoints'
         kubernetes_sd_configs:
-          - api_servers:
-              - 'https://kubernetes.default.svc'
-            in_cluster: true
-            role: endpoint
+          - role: endpoints
         relabel_configs:
           - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
             action: keep
@@ -71,7 +54,7 @@ data:
             replacement: $1:$2
           - action: labelmap
             regex: __meta_kubernetes_service_label_(.+)
-          - source_labels: [__meta_kubernetes_service_namespace]
+          - source_labels: [__meta_kubernetes_namespace]
             action: replace
             target_label: kubernetes_namespace
           - source_labels: [__meta_kubernetes_service_name]
@@ -84,10 +67,7 @@ data:
         params:
           module: [http_2xx]
         kubernetes_sd_configs:
-          - api_servers:
-              - 'https://kubernetes.default.svc'
-            in_cluster: true
-            role: service
+          - role: service
         relabel_configs:
           - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_probe]
             action: keep
@@ -100,7 +80,7 @@ data:
             target_label: instance
           - action: labelmap
             regex: __meta_kubernetes_service_label_(.+)
-          - source_labels: [__meta_kubernetes_service_namespace]
+          - source_labels: [__meta_kubernetes_namespace]
             target_label: kubernetes_namespace
           - source_labels: [__meta_kubernetes_service_name]
             target_label: kubernetes_name
@@ -108,10 +88,7 @@ data:
       # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L156
       - job_name: 'kubernetes-pods'
         kubernetes_sd_configs:
-          - api_servers:
-              - 'https://kubernetes.default.svc'
-            in_cluster: true
-            role: pod
+          - role: pod
         relabel_configs:
           - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
             action: keep
@@ -127,7 +104,7 @@ data:
             target_label: __address__
           - action: labelmap
             regex: __meta_kubernetes_pod_label_(.+)
-          - source_labels: [__meta_kubernetes_pod_namespace]
+          - source_labels: [__meta_kubernetes_namespace]
             action: replace
             target_label: kubernetes_namespace
           - source_labels: [__meta_kubernetes_pod_name]

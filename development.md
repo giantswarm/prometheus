@@ -1,33 +1,25 @@
 # Before pushing to this repo
 
-**Create ConfigMap with Grafana dashboards**
+Create derived `ConfigMap`s and `manifests-all.yaml`:
 
 ```bash
-kubectl create configmap grafana-import-dashboards \
+# Create ConfigMap with Grafana dashboards and datasources
+kubectl --namespace monitoring create configmap --dry-run grafana-import-dashboards \
   --from-file=configs/grafana \
   --output yaml \
-    > ./manifests/grafana/grafana-import-dashboards-configmap.yaml
-```
+    > ./manifests/grafana/import-dashboards/configmap.yaml
+# Workaround since `--namespace monitoring` from above is not preserved
+echo "  namespace: monitoring" >> ./manifests/grafana/import-dashboards/configmap.yaml
 
-Adjust `metadata` in that manifest.
-
-
-**Create ConfigMap with Prometheus config**
-
-
-```bash
-kubectl create configmap prometheus-core \
+# Create ConfigMap with Prometheus config
+kubectl --namespace monitoring create configmap --dry-run prometheus-core \
   --from-file=configs/prometheus \
   --output yaml \
-    > ./manifests/prometheus/prometheus-core-configmap.yaml
-```
+    > ./manifests/prometheus/configmap.yaml
+# Workaround since `--namespace monitoring` from above is not preserved
+echo "  namespace: monitoring" >> ./manifests/prometheus/configmap.yaml
 
-Adjust `metadata` in that manifest.
-
-
-**Create one single manifest file**
-
-```bash
+# Create one single manifest file
 target="./manifests-all.yaml"
 rm "$target"
 echo "# Derived from ./manifests" >> "$target"

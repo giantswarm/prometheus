@@ -1,14 +1,4 @@
-# based on the content created by:
-# kubectl create configmap prometheus-core --from-file=configs/prometheus --output yaml > prometheus-core-configmap.yaml
-
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prometheus-core
-  namespace: monitoring
-  labels:
-    app: prometheus
-    component: core
 data:
   prometheus.yml: |
     global:
@@ -110,3 +100,8 @@ data:
           - source_labels: [__meta_kubernetes_pod_name]
             action: replace
             target_label: kubernetes_pod_name
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: prometheus-core
+  namespace: monitoring

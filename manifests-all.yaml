@@ -71,6 +71,7 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   name: grafana-import-dashboards
+  namespace: monitoring
 ---
 apiVersion: batch/v1
 kind: Job
@@ -261,6 +262,7 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   name: prometheus-core
+  namespace: monitoring
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment

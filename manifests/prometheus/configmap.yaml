@@ -104,3 +104,4 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   name: prometheus-core
+  namespace: monitoring

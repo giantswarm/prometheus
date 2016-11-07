@@ -3,6 +3,13 @@ kind: DaemonSet
 metadata:
   name: node-directory-size-metrics
   namespace: monitoring
+  annotations:
+    description: |
+      This `DaemonSet` provides metrics in Prometheus format about disk usage on the nodes.
+      The container `read-du` reads in sizes of all directories below /mnt and writes that to `/tmp/metrics`. It only reports directories larger then `100M` for now.
+      The other container `caddy` just hands out the contents of that file on request via `http` on `/metrics` at port `9102` which are the defaults for Prometheus.
+      These are scheduled on every node in the Kubernetes cluster.
+      To choose directories from the node to check, just mount them on the `read-du` container below `/mnt`.
 spec:
   template:
     metadata:
@@ -11,12 +18,19 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: '9102'
+        description: |
+          This `Pod` provides metrics in Prometheus format about disk usage on the node.
+          The container `read-du` reads in sizes of all directories below /mnt and writes that to `/tmp/metrics`. It only reports directories larger then `100M` for now.
+          The other container `caddy` just hands out the contents of that file on request on `/metrics` at port `9102` which are the defaults for Prometheus.
+          This `Pod` is scheduled on every node in the Kubernetes cluster.
+          To choose directories from the node to check just mount them on `read-du` below `/mnt`.
     spec:
       containers:
       - name: read-du
         image: giantswarm/tiny-tools
         imagePullPolicy: Always
         # FIXME threshold via env var
+        # The
         command:
         - fish
         - --command
@@ -36,7 +50,7 @@ spec:
           readOnly: true
         - name: metrics
           mountPath: /tmp
-      - name: metrics
+      - name: caddy
         image: dockermuenster/caddy:0.9.3
         command:
         - "caddy"

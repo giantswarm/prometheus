@@ -1,0 +1,56 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: node-directory-size-metrics
+  namespace: monitoring
+spec:
+  template:
+    metadata:
+      labels:
+        app: node-directory-size-metrics
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9102'
+    spec:
+      containers:
+      - name: read-du
+        image: giantswarm/tiny-tools
+        imagePullPolicy: Always
+        # FIXME threshold via env var
+        command:
+        - fish
+        - --command
+        - |
+          while true
+            for directory in (du --bytes --separate-dirs --threshold=100M /mnt)
+              echo $directory | read size path
+              echo "node_directory_size_bytes{path=\"$path\"} $size" \
+                >> /tmp/metrics-temp
+            end
+            mv /tmp/metrics-temp /tmp/metrics
+            sleep 300
+          end
+        volumeMounts:
+        - name: host-fs-var
+          mountPath: /mnt/var
+          readOnly: true
+        - name: metrics
+          mountPath: /tmp
+      - name: metrics
+        image: dockermuenster/caddy:0.9.3
+        command:
+        - "caddy"
+        - "-port=9102"
+        - "-root=/var/www"
+        ports:
+        - containerPort: 9102
+        volumeMounts:
+        - name: metrics
+          mountPath: /var/www
+      volumes:
+      - name: host-fs-var
+        hostPath:
+          path: /var
+      - name: metrics
+        emptyDir:
+          medium: Memory

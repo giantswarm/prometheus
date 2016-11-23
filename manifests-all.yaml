@@ -2162,7 +2162,8 @@ spec:
     port: 8080
     protocol: TCP
   selector:
-    app: kube-state-metrics---
+    app: kube-state-metrics
+---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:

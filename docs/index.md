@@ -4,7 +4,7 @@ description = "Recipe to spin up a monitoring setup with Prometheus and Grafana 
 date = "2016-10-21"
 type = "page"
 weight = 100
-categories = ["recipes"]
+tags = ["recipe"]
 +++
 
 # Monitoring with Prometheus and Grafana

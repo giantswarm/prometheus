@@ -15,7 +15,7 @@ spec:
         component: core
     spec:
       containers:
-      - image: grafana/grafana:3.1.1
+      - image: grafana/grafana:4.0.2
         name: grafana-core
         # env:
         resources:
@@ -37,9 +37,9 @@ spec:
           # does not really work, because of template variables in exported dashboards:
           # - name: GF_DASHBOARDS_JSON_ENABLED
           #   value: "true"
-        readynessProbe:
+        readinessProbe:
           httpGet:
-            path: /api/datasources
+            path: /login
             port: 3000
           initialDelaySeconds: 30
           timeoutSeconds: 1

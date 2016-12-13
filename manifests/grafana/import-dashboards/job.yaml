@@ -14,14 +14,6 @@ spec:
         app: grafana
         component: import-dashboards
       annotations:
-        # pod.beta.kubernetes.io/init-containers: '[
-        #   {
-        #     "name": "wait-for-endpoints",
-        #     "image": "giantswarm/tiny-tools",
-        #     "command": ["fish", "-c", "echo https://kubernetes.default.svc/api/v1/namespaces/monitoring/endpoints/grafana > /dev/termination-log; false"],
-        #     "args": ["monitoring", "grafana"]
-        #   }
-        # ]'
         pod.beta.kubernetes.io/init-containers: '[
           {
             "name": "wait-for-endpoints",
@@ -30,18 +22,6 @@ spec:
             "args": ["monitoring", "grafana"]
           }
         ]'
-        # pod.beta.kubernetes.io/init-containers: '[{
-        #     "name": "wait-for-endpoints",
-        #     "image": "giantswarm/tiny-tools",
-        #     "command": ["fish", "-c", "while test 0 -eq (curl --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt --header \"Authorization: Bearer \"(cat /var/run/secrets/kubernetes.io/serviceaccount/token) https://kubernetes.default.svc/api/v1/namespaces/monitoring/endpoints/grafana | jq -r \".subsets | length\"); sleep 2; end"],
-        #     "args": ["monitoring", "grafana"]
-        #   }]'
-        # pod.beta.kubernetes.io/init-containers: '[{
-        #     "name": "wait-for-endpoints",
-        #     "image": "giantswarm/tiny-tools",
-        #     "command": ["fish", "-c", "while test 0 -eq (curl --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt --header \"Authorization: Bearer \"(cat /var/run/secrets/kubernetes.io/serviceaccount/token) https://kubernetes.default.svc/api/v1/namespaces/$argv[1]/endpoints/$argv[2] | jq -r \".subsets | length\"); sleep 2; end"],
-        #     "args": ["monitoring", "grafana"]
-        #   }]'
     spec:
       containers:
       - name: grafana-import-dashboards

@@ -22,7 +22,7 @@ spec:
         component: core
     spec:
       containers:
-      - image: grafana/grafana:3.1.1
+      - image: grafana/grafana:4.0.0
         name: grafana-core
         # env:
         resources:
@@ -2105,7 +2105,7 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.3.0
+        image: prom/prometheus:v1.4.1
         args:
           - '-storage.local.retention=6h'
           - '-storage.local.memory-chunks=500000'
@@ -2162,7 +2162,8 @@ spec:
     port: 8080
     protocol: TCP
   selector:
-    app: kube-state-metrics---
+    app: kube-state-metrics
+---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:

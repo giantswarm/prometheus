@@ -13,6 +13,15 @@ spec:
       labels:
         app: grafana
         component: import-dashboards
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[
+          {
+            "name": "wait-for-endpoints",
+            "image": "giantswarm/tiny-tools",
+            "command": ["fish", "-c", "echo \"waiting for endpoints...\"; while true; set endpoints (curl -s --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt --header \"Authorization: Bearer \"(cat /var/run/secrets/kubernetes.io/serviceaccount/token) https://kubernetes.default.svc/api/v1/namespaces/monitoring/endpoints/grafana); echo $endpoints | jq \".\"; if test (echo $endpoints | jq -r \".subsets[].addresses | length\") -gt 0; exit 0; end; echo \"waiting...\";sleep 1; end"],
+            "args": ["monitoring", "grafana"]
+          }
+        ]'
     spec:
       containers:
       - name: grafana-import-dashboards
@@ -20,11 +29,7 @@ spec:
         command: ["/bin/sh", "-c"]
         workingDir: /opt/grafana-import-dashboards
         args:
-          # FIXME use kubernetes probe instead of "until curl"
           - >
-            until $(curl --silent --fail --show-error --output /dev/null http://admin:admin@grafana:3000/api/datasources); do
-              printf '.' ; sleep 1 ;
-            done ;
             for file in *-datasource.json ; do
               if [ -e "$file" ] ; then
                 echo "importing $file" &&

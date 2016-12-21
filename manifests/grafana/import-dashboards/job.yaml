@@ -43,8 +43,9 @@ spec:
             for file in *-dashboard.json ; do
               if [ -e "$file" ] ; then
                 echo "importing $file" &&
-                cat "$file" \
-                | xargs -0 printf '{"dashboard":%s,"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}' \
+                ( echo '{"dashboard":'; \
+                  cat "$file"; \
+                  echo ',"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}' ) \
                 | jq -c '.' \
                 | curl --silent --fail --show-error \
                   --request POST http://admin:admin@grafana:3000/api/dashboards/import \

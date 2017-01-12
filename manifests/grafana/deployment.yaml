@@ -15,7 +15,7 @@ spec:
         component: core
     spec:
       containers:
-      - image: grafana/grafana:4.0.2
+      - image: grafana/grafana:4.1.1
         name: grafana-core
         imagePullPolicy: IfNotPresent
         # env:

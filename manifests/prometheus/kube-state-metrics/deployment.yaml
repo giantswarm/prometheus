@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: kube-state-metrics-deployment
+  name: kube-state-metrics
   namespace: monitoring
 spec:
   replicas: 1

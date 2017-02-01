@@ -59,7 +59,7 @@ _Note:_ If persistent storage is not set up in your cluster, the preset datasour
 
 ```nohighlight
 kubectl --namespace=monitoring delete job grafana-import-dashboards
-kubectl --namespace=monitoring create --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests/grafana-import-dashboards-job.yaml
+kubectl --namespace=monitoring create --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests/grafana/import-dashboards/job.yaml
 ```
 
 ## Next Steps

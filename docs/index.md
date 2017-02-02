@@ -1,7 +1,7 @@
 +++
 title = "Monitoring with Prometheus and Grafana"
 description = "Recipe to spin up a monitoring setup with Prometheus and Grafana on Kubernetes."
-date = "2016-10-21"
+date = "2017-02-01"
 type = "page"
 weight = 100
 tags = ["recipe"]
@@ -25,7 +25,7 @@ kubectl apply --filename https://raw.githubusercontent.com/giantswarm/kubernetes
 
 ## Checking Prometheus
 
-Wait a bit for all the pods to come up. Then Prometheus should be ready and running. We can check the Prometheus targets at `https://api.<cluster-id>.k8s.gigantic.io/api/v1/proxy/namespaces/default/services/prometheus:9090/targets`
+Wait a bit for all the pods to come up. Then Prometheus should be ready and running. We can check the Prometheus targets at `https://api.<cluster-id>.k8s.gigantic.io/api/v1/proxy/namespaces/monitoring/services/prometheus:9090/targets`
 
 ![Prometheus Targets](prometheus_targets.png)
 

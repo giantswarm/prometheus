@@ -38,6 +38,16 @@ spec:
           # The following env variables set up basic auth twith the default admin user and admin password.
           - name: GF_AUTH_BASIC_ENABLED
             value: "true"
+          - name: GF_SECURITY_ADMIN_USER
+            valueFrom:
+              secretKeyRef:
+                name: grafana
+                key: admin-username
+          - name: GF_SECURITY_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: grafana
+                key: admin-password
           - name: GF_AUTH_ANONYMOUS_ENABLED
             value: "false"
           # - name: GF_AUTH_ANONYMOUS_ORG_ROLE
@@ -1936,7 +1946,7 @@ spec:
               if [ -e "$file" ] ; then
                 echo "importing $file" &&
                 curl --silent --fail --show-error \
-                  --request POST http://admin:admin@grafana:3000/api/datasources \
+                  --request POST http://${GF_ADMIN_USER}:${GF_ADMIN_PASSWORD}@grafana:3000/api/datasources \
                   --header "Content-Type: application/json" \
                   --data-binary "@$file" ;
                 echo "" ;
@@ -1945,17 +1955,29 @@ spec:
             for file in *-dashboard.json ; do
               if [ -e "$file" ] ; then
                 echo "importing $file" &&
-                cat "$file" \
-                | xargs -0 printf '{"dashboard":%s,"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}' \
+                ( echo '{"dashboard":'; \
+                  cat "$file"; \
+                  echo ',"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}' ) \
                 | jq -c '.' \
                 | curl --silent --fail --show-error \
-                  --request POST http://admin:admin@grafana:3000/api/dashboards/import \
+                  --request POST http://${GF_ADMIN_USER}:${GF_ADMIN_PASSWORD}@grafana:3000/api/dashboards/import \
                   --header "Content-Type: application/json" \
                   --data-binary "@-" ;
                 echo "" ;
               fi
             done
 
+        env:
+        - name: GF_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana
+              key: admin-username
+        - name: GF_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana
+              key: admin-password
         volumeMounts:
         - name: config-volume
           mountPath: /opt/grafana-import-dashboards
@@ -1974,6 +1996,16 @@ spec:
   backend:
     serviceName: grafana
     servicePort: 3000
+---
+apiVersion: v1
+kind: Secret
+data:
+  admin-password: YWRtaW4=
+  admin-username: YWRtaW4=
+metadata:
+  name: grafana
+  namespace: monitoring
+type: Opaque
 ---
 apiVersion: v1
 kind: Service
@@ -2144,7 +2176,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: kube-state-metrics-deployment
+  name: kube-state-metrics
   namespace: monitoring
 spec:
   replicas: 1

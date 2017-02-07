@@ -31,6 +31,16 @@ spec:
           # The following env variables set up basic auth twith the default admin user and admin password.
           - name: GF_AUTH_BASIC_ENABLED
             value: "true"
+          - name: GF_SECURITY_ADMIN_USER
+            valueFrom:
+              secretKeyRef:
+                name: grafana
+                key: admin-username
+          - name: GF_SECURITY_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: grafana
+                key: admin-password
           - name: GF_AUTH_ANONYMOUS_ENABLED
             value: "false"
           # - name: GF_AUTH_ANONYMOUS_ORG_ROLE

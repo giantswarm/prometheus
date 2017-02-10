@@ -43,7 +43,7 @@ kubectl --namespace monitoring edit ingress grafana
 
 This will open the ingress YAML in your standard editor. In the `host` field replace `yourchoice` with a subdomain of your choice and `clusterid` with your cluster ID. After saving and exiting your editor, wait a while and Grafana should be available at `http://<yourchoice>.<cluster-id>.k8s.gigantic.io/`.
 
-You can use the default admin (`admin:admin`) user for your first login. You should this admin user to reflect your desired username, your email, and a secure password ASAP!
+You can use the default admin (`admin:admin`) user for your first login. You should change this admin user to reflect your desired username, your email, and a secure password ASAP!
 
 _Note:_ If persistent storage is not set up in your cluster, changes like the above will be reset to defaults if the Grafana Pod gets rescheduled. You would need to set them again after that.
 

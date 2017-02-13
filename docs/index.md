@@ -1,7 +1,7 @@
 +++
 title = "Monitoring with Prometheus and Grafana"
 description = "Recipe to spin up a monitoring setup with Prometheus and Grafana on Kubernetes."
-date = "2017-02-01"
+date = "2017-02-10"
 type = "page"
 weight = 100
 tags = ["recipe"]
@@ -35,9 +35,15 @@ Wait a bit for all the pods to come up. Then Prometheus should be ready and runn
 
 Now that we know Prometheus is up and running we can check for Grafana.
 
-There's an Ingress set up for Grafana, so it should be available at `https://http://grafana.monitoring.<cluster-id>.k8s.gigantic.io/`
+There's an Ingress set up for Grafana, however, you need to set it to your desired domain. You can do this by editing the ingress:
 
-You can user the default admin (`admin:admin`) user for your first login. You should this admin user to reflect your desired username, your email, and a secure password ASAP!
+```bash
+kubectl --namespace monitoring edit ingress grafana
+```
+
+This will open the ingress YAML in your standard editor. In the `host` field replace `yourchoice` with a subdomain of your choice and `clusterid` with your cluster ID. After saving and exiting your editor, wait a while and Grafana should be available at `http://<yourchoice>.<cluster-id>.k8s.gigantic.io/`.
+
+You can use the default admin (`admin:admin`) user for your first login. You should change this admin user to reflect your desired username, your email, and a secure password ASAP!
 
 _Note:_ If persistent storage is not set up in your cluster, changes like the above will be reset to defaults if the Grafana Pod gets rescheduled. You would need to set them again after that.
 

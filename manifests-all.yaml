@@ -1945,8 +1945,9 @@ spec:
             for file in *-dashboard.json ; do
               if [ -e "$file" ] ; then
                 echo "importing $file" &&
-                cat "$file" \
-                | xargs -0 printf '{"dashboard":%s,"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}' \
+                ( echo '{"dashboard":'; \
+                  cat "$file"; \
+                  echo ',"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}' ) \
                 | jq -c '.' \
                 | curl --silent --fail --show-error \
                   --request POST http://admin:admin@grafana:3000/api/dashboards/import \
@@ -1971,9 +1972,13 @@ metadata:
   name: grafana
   namespace: monitoring
 spec:
-  backend:
-    serviceName: grafana
-    servicePort: 3000
+  - host: <yourchoice>.<cluster-id>.k8s.gigantic.io
+    http:
+      paths:
+      - path: /
+        backend:
+         serviceName: grafana
+         servicePort: 3000
 ---
 apiVersion: v1
 kind: Service
@@ -2118,7 +2123,7 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.5.1
+        image: prom/prometheus:v1.5.2
         args:
           - '-storage.local.retention=6h'
           - '-storage.local.memory-chunks=500000'
@@ -2144,7 +2149,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: kube-state-metrics-deployment
+  name: kube-state-metrics
   namespace: monitoring
 spec:
   replicas: 1
@@ -2152,11 +2157,10 @@ spec:
     metadata:
       labels:
         app: kube-state-metrics
-        version: "v0.3.0"
     spec:
       containers:
       - name: kube-state-metrics
-        image: gcr.io/google_containers/kube-state-metrics:v0.3.0
+        image: gcr.io/google_containers/kube-state-metrics:v0.4.1
         ports:
         - containerPort: 8080
 ---

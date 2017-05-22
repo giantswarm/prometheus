@@ -12,7 +12,7 @@ subjects:
   name: kube-state-metrics
   namespace: monitoring
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1alpha1
 kind: ClusterRole
 metadata:
   name: kube-state-metrics
@@ -21,7 +21,10 @@ rules:
   resources:
   - nodes
   - pods
+  - services
   - resourcequotas
+  - replicationcontrollers
+  - limitranges
   verbs: ["list", "watch"]
 - apiGroups: ["extensions"]
   resources:

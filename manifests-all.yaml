@@ -22,7 +22,7 @@ spec:
         component: core
     spec:
       containers:
-      - image: grafana/grafana:4.1.1
+      - image: grafana/grafana:4.2.0
         name: grafana-core
         imagePullPolicy: IfNotPresent
         # env:
@@ -1966,6 +1966,20 @@ spec:
         configMap:
           name: grafana-import-dashboards
 ---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  - host: <yourchoice>.<cluster-id>.k8s.gigantic.io
+    http:
+      paths:
+      - path: /
+        backend:
+         serviceName: grafana
+         servicePort: 3000
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -2109,7 +2123,7 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.5.2
+        image: prom/prometheus:v1.6.3
         args:
           - '-storage.local.retention=6h'
           - '-storage.local.memory-chunks=500000'
@@ -2146,7 +2160,7 @@ spec:
     spec:
       containers:
       - name: kube-state-metrics
-        image: gcr.io/google_containers/kube-state-metrics:v0.4.1
+        image: gcr.io/google_containers/kube-state-metrics:v0.5.0
         ports:
         - containerPort: 8080
 ---

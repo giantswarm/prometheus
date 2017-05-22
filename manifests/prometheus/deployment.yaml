@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.5.2
+        image: prom/prometheus:v1.6.3
         args:
           - '-storage.local.retention=6h'
           - '-storage.local.memory-chunks=500000'

@@ -4,6 +4,7 @@ metadata:
   name: grafana
   namespace: monitoring
 spec:
+  rules:
   - host: <yourchoice>.<cluster-id>.k8s.gigantic.io
     http:
       paths:

@@ -2052,7 +2052,7 @@ metadata:
   namespace: monitoring
 spec:
   rules:
-  - host: host: <yourchoice>.<cluster-id>.k8s.gigantic.io
+  - host: <yourchoice>.<cluster-id>.k8s.gigantic.io
     http:
       paths:
       - path: /

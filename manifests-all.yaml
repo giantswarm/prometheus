@@ -503,7 +503,7 @@ spec:
 ---
 apiVersion: v1
 data:
-  url: https://my-external-prometheus.example.com
+  url: https://some.url.com
 kind: ConfigMap
 metadata:
   creationTimestamp: null

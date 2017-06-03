@@ -2530,7 +2530,8 @@ data:
       scrape_interval: 10s
       scrape_timeout: 10s
       evaluation_interval: 10s
-
+    rule_files:
+      - "/etc/prometheus-rules/*.rules"
     scrape_configs:
 
       # https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml#L37
@@ -2655,7 +2656,7 @@ spec:
         args:
           - '-storage.local.retention=12h'
           - '-storage.local.memory-chunks=500000'
-          - '-config.file=/etc/prometheus/prometheus.yml'
+          - '-config.file=/etc/prometheus/prometheus.yaml'
           - '-alertmanager.url=http://alertmanager:9093/alertmanager'
         ports:
         - name: webui
@@ -2889,6 +2890,15 @@ data:
         SUMMARY = "{{$labels.instance}}: High CPU usage detected",
         DESCRIPTION = "{{$labels.instance}}: CPU usage is above 75% (current value is: {{ $value }})"
       }
+  instance-availability.rules: |
+    ALERT InstanceDown
+      IF up == 0
+      FOR 1m
+      LABELS { severity = "page" }
+      ANNOTATIONS {
+        summary = "Instance {{ $labels.instance }} down",
+        description = "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.",
+      }
   low-disk-space.rules: |
     ALERT NodeLowRootDisk
       IF ((node_filesystem_size{mountpoint="/root-disk"} - node_filesystem_free{mountpoint="/root-disk"} ) / node_filesystem_size{mountpoint="/root-disk"} * 100) > 75
@@ -2976,7 +2986,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: prometheus-k8s
-  namespace: monitoring---
+  namespace: monitoring
+---
 apiVersion: v1
 kind: Service
 metadata:

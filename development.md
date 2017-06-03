@@ -3,6 +3,30 @@
 Create derived `ConfigMap`s and `manifests-all.yaml`:
 
 ```bash
+# Create ConfigMap with prometheus rules for alerting
+kubectl --namespace monitoring create configmap --dry-run prometheus-rules \
+  --from-file=configs/prometheus/rules \
+  --output yaml \
+    > ./manifests/prometheus/prometheus-rules.yaml
+# Workaround since `--namespace monitoring` from above is not preserved
+echo "  namespace: monitoring" >> ./manifests/prometheus/prometheus-rules.yaml
+
+# Create ConfigMap with alertmanager templates -> default and slack
+kubectl --namespace monitoring create configmap --dry-run external-url \
+  --from-literal=url=${EXTERNAL_URL}\
+  --output yaml \
+    > ./manifests/alertmanager/external-url.yaml
+# Workaround since `--namespace monitoring` from above is not preserved
+echo "  namespace: monitoring" >> ./manifests/alertmanager/external-url.yaml
+
+# Create ConfigMap for an external url
+kubectl --namespace monitoring create configmap --dry-run alertmanager-templates \
+  --from-file=configs/alertmanager-templates \
+  --output yaml \
+    > ./manifests/alertmanager/alertmanager-templates.yaml
+# Workaround since `--namespace monitoring` from above is not preserved
+echo "  namespace: monitoring" >> ./manifests/alertmanager/alertmanager-templates.yaml
+
 # Create ConfigMap with Grafana dashboards and datasources
 kubectl --namespace monitoring create configmap --dry-run grafana-import-dashboards \
   --from-file=configs/grafana \
@@ -13,7 +37,7 @@ echo "  namespace: monitoring" >> ./manifests/grafana/import-dashboards/configma
 
 # Create ConfigMap with Prometheus config
 kubectl --namespace monitoring create configmap --dry-run prometheus-core \
-  --from-file=configs/prometheus \
+  --from-file=configs/prometheus/prometheus.yaml \
   --output yaml \
     > ./manifests/prometheus/configmap.yaml
 # Workaround since `--namespace monitoring` from above is not preserved

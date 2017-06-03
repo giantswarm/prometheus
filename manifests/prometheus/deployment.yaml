@@ -23,6 +23,7 @@ spec:
           - '-storage.local.retention=12h'
           - '-storage.local.memory-chunks=500000'
           - '-config.file=/etc/prometheus/prometheus.yml'
+          - '-alertmanager.url=http://alertmanager:9093/alertmanager'
         ports:
         - name: webui
           containerPort: 9090
@@ -36,7 +37,12 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus
+        - name: rules-volume
+          mountPath: /etc/prometheus-rules
       volumes:
       - name: config-volume
         configMap:
           name: prometheus-core
+      - name: rules-volume
+        configMap:
+          name: prometheus-rules

@@ -230,13 +230,7 @@ data:
       smtp_auth_password: 'barfoo'
 
       # The API URL to use for Slack notifications.
-      slack_api_url: 'https://hooks.slack.com/services/abc123'
-
-      # # The auth token for Hipchat.
-      # hipchat_auth_token: '1234556789'
-      #
-      # # Alternative host for Hipchat.
-      # hipchat_url: 'https://hipchat.foobar.org/'
+      slack_api_url: 'https://hooks.slack.com/services/some/api/token'
 
     # # The directory from which notification templates are read.
     templates:
@@ -292,165 +286,14 @@ data:
     receivers:
     - name: 'default'
       slack_configs:
-      - channel: '#devops'
+      - channel: '#alertmanager-test'
         text: '<!channel>{{ template "slack.devops.text" . }}'
         send_resolved: true
 
     - name: 'slack_alert'
       slack_configs:
-      - channel: '#devops'
+      - channel: '#alertmanager-test'
         send_resolved: true
-
-        # # Whether or not to notify about resolved alerts.
-        # send_resolved: true
-        #
-        # # The Slack webhook URL.
-        # [ api_url: <string> | default = global.slack_api_url ]
-        #
-        # # The channel or user to send notifications to.
-        # channel: <tmpl_string>
-        #
-        # # API request data as defined by the Slack webhook API.
-        # [ color: <tmpl_string> | default = '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}' ]
-        # [ username: <tmpl_string> | default = '{{ template "slack.default.username" . }}'
-        # [ title: <tmpl_string> | default = '{{ template "slack.default.title" . }}' ]
-        # [ title_link: <tmpl_string> | default = '{{ template "slack.default.titlelink" . }}' ]
-        # [ icon_emoji: <tmpl_string> ]
-        # [ pretext: <tmpl_string> | default = '{{ template "slack.default.pretext" . }}' ]
-        # [ text: <tmpl_string> | default = '{{ template "slack.default.text" . }}' ]
-        # [ fallback: <tmpl_string> | default = '{{ template "slack.default.fallback" . }}' ]
-
-    - name: 'email_alert'
-      email_configs:
-      - to: 'foo@bar.com'
-
-
-    #
-    #
-    #
-    # global:
-    #   # The smarthost and SMTP sender used for mail notifications.
-    #   smtp_smarthost: 'localhost:25'
-    #   smtp_from: 'alertmanager@example.org'
-    #   smtp_auth_username: 'alertmanager'
-    #   smtp_auth_password: 'password'
-    #   # The auth token for Hipchat.
-    #   hipchat_auth_token: '1234556789'
-    #   # Alternative host for Hipchat.
-    #   hipchat_url: 'https://hipchat.foobar.org/'
-    #
-    # # The directory from which notification templates are read.
-    # templates:
-    # - '/etc/alertmanager/template/*.tmpl'
-    #
-    # # The root route on which each incoming alert enters.
-    # route:
-    #   # The labels by which incoming alerts are grouped together. For example,
-    #   # multiple alerts coming in for cluster=A and alertname=LatencyHigh would
-    #   # be batched into a single group.
-    #   group_by: ['alertname', 'cluster', 'service']
-    #
-    #   # When a new group of alerts is created by an incoming alert, wait at
-    #   # least 'group_wait' to send the initial notification.
-    #   # This way ensures that you get multiple alerts for the same group that start
-    #   # firing shortly after another are batched together on the first
-    #   # notification.
-    #   group_wait: 30s
-    #
-    #   # When the first notification was sent, wait 'group_interval' to send a batch
-    #   # of new alerts that started firing for that group.
-    #   group_interval: 5m
-    #
-    #   # If an alert has successfully been sent, wait 'repeat_interval' to
-    #   # resend them.
-    #   repeat_interval: 3h
-    #
-    #   # A default receiver
-    #   receiver: team-X-mails
-    #
-    #   # All the above attributes are inherited by all child routes and can
-    #   # overwritten on each.
-    #
-    #   # The child route trees.
-    #   routes:
-    #   # This routes performs a regular expression match on alert labels to
-    #   # catch alerts that are related to a list of services.
-    #   - match_re:
-    #       service: ^(foo1|foo2|baz)$
-    #     receiver: team-X-mails
-    #     # The service has a sub-route for critical alerts, any alerts
-    #     # that do not match, i.e. severity != critical, fall-back to the
-    #     # parent node and are sent to 'team-X-mails'
-    #     routes:
-    #     - match:
-    #         severity: critical
-    #       receiver: team-X-pager
-    #   - match:
-    #       service: files
-    #     receiver: team-Y-mails
-    #
-    #     routes:
-    #     - match:
-    #         severity: critical
-    #       receiver: team-Y-pager
-    #
-    #   # This route handles all alerts coming from a database service. If there's
-    #   # no team to handle it, it defaults to the DB team.
-    #   - match:
-    #       service: database
-    #     receiver: team-DB-pager
-    #     # Also group alerts by affected database.
-    #     group_by: [alertname, cluster, database]
-    #     routes:
-    #     - match:
-    #         owner: team-X
-    #       receiver: team-X-pager
-    #     - match:
-    #         owner: team-Y
-    #       receiver: team-Y-pager
-    #
-    #
-    # # Inhibition rules allow to mute a set of alerts given that another alert is
-    # # firing.
-    # # We use this to mute any warning-level notifications if the same alert is
-    # # already critical.
-    # inhibit_rules:
-    # - source_match:
-    #     severity: 'critical'
-    #   target_match:
-    #     severity: 'warning'
-    #   # Apply inhibition if the alertname is the same.
-    #   equal: ['alertname', 'cluster', 'service']
-    #
-    #
-    # receivers:
-    # - name: 'team-X-mails'
-    #   email_configs:
-    #   - to: 'team-X+alerts@example.org'
-    #
-    # - name: 'team-X-pager'
-    #   email_configs:
-    #   - to: 'team-X+alerts-critical@example.org'
-    #   pagerduty_configs:
-    #   - service_key: <team-X-key>
-    #
-    # - name: 'team-Y-mails'
-    #   email_configs:
-    #   - to: 'team-Y+alerts@example.org'
-    #
-    # - name: 'team-Y-pager'
-    #   pagerduty_configs:
-    #   - service_key: <team-Y-key>
-    #
-    # - name: 'team-DB-pager'
-    #   pagerduty_configs:
-    #   - service_key: <team-DB-key>
-    # - name: 'team-X-hipchat'
-    #   hipchat_configs:
-    #   - auth_token: <auth_token>
-    #     room_id: 85
-    #     message_format: html
-    #     notify: true
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -2626,6 +2469,9 @@ data:
           - source_labels: [__meta_kubernetes_pod_name]
             action: replace
             target_label: kubernetes_pod_name
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: keep
+            regex: 9\d{3}
 kind: ConfigMap
 metadata:
   creationTimestamp: null
@@ -2739,7 +2585,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kube-state-metrics
-  namespace: monitoring---
+  namespace: monitoring
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -2795,8 +2642,9 @@ spec:
         - fish
         - --command
         - |
+          touch /tmp/metrics-temp
           while true
-            for directory in (du --bytes --separate-dirs --threshold=100M /mnt)
+            for directory in (du --bytes --separate-dirs --threshold=1M /mnt)
               echo $directory | read size path
               echo "node_directory_size_bytes{path=\"$path\"} $size" \
                 >> /tmp/metrics-temp
@@ -2897,7 +2745,7 @@ data:
       LABELS { severity = "page" }
       ANNOTATIONS {
         summary = "Instance {{ $labels.instance }} down",
-        description = "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.",
+        description = "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute.",
       }
   low-disk-space.rules: |
     ALERT NodeLowRootDisk

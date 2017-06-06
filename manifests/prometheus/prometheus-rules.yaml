@@ -18,7 +18,7 @@ data:
       LABELS { severity = "page" }
       ANNOTATIONS {
         summary = "Instance {{ $labels.instance }} down",
-        description = "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.",
+        description = "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute.",
       }
   low-disk-space.rules: |
     ALERT NodeLowRootDisk

@@ -101,6 +101,9 @@ data:
           - source_labels: [__meta_kubernetes_pod_name]
             action: replace
             target_label: kubernetes_pod_name
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: keep
+            regex: 9\d{3}
 kind: ConfigMap
 metadata:
   creationTimestamp: null

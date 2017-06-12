@@ -31,6 +31,14 @@ Wait a bit for all the pods to come up. Then Prometheus should be ready and runn
 
 *Note*: The above URL uses your Kubernetes API to proxy to the service. As the API is guarded with your credentials, you need to [set them up in your system](/guides/accessing-services-from-the-outside/) (and/or browser). We do not recommend to set up an Ingress for Prometheus at this time, as it currently does not support any kind of authentication and thus your cluster would be open to everyone.
 
+## Checking Alertmanager
+
+Prometheus shows the active alerts and rules under `/alerts` in the prometheus frontend:
+
+![Prometheus Alerts](prometheus_alerts.png)
+
+A full list of all rules can also be seen under `/rules`. The Alertmanager frontend offers more options to look at active and silenced alerts.
+
 ## Checking Grafana
 
 Now that we know Prometheus is up and running we can check for Grafana.

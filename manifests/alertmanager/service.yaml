@@ -3,7 +3,7 @@ kind: Service
 metadata:
   annotations:
     prometheus.io/scrape: 'true'
-    prometheus.io/path: '/alertmanager/metrics'
+    prometheus.io/path: '/metrics'
   labels:
     name: alertmanager
   name: alertmanager
@@ -11,7 +11,7 @@ metadata:
 spec:
   selector:
     app: alertmanager
-  #type: NodePort
+  type: NodePort
   ports:
   - name: alertmanager
     protocol: TCP

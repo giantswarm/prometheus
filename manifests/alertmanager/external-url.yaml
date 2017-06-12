@@ -1,8 +1,0 @@
-apiVersion: v1
-data:
-  url: https://some.url.com
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: external-url
-  namespace: monitoring

@@ -16,20 +16,13 @@ spec:
     spec:
       containers:
       - name: alertmanager
-        image: prom/alertmanager:latest
+        image: quay.io/prometheus/alertmanager:v0.7.1
         args:
           - '-config.file=/etc/alertmanager/config.yml'
           - '-storage.path=/alertmanager'
-          - '-web.external-url=$(EXTERNAL_URL)/alertmanager'
         ports:
         - name: alertmanager
           containerPort: 9093
-        env:
-        - name: EXTERNAL_URL
-          valueFrom:
-            configMapKeyRef:
-              name: external-url
-              key: url
         volumeMounts:
         - name: config-volume
           mountPath: /etc/alertmanager

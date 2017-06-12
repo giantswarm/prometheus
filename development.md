@@ -11,14 +11,6 @@ kubectl --namespace monitoring create configmap --dry-run prometheus-rules \
 # Workaround since `--namespace monitoring` from above is not preserved
 echo "  namespace: monitoring" >> ./manifests/prometheus/prometheus-rules.yaml
 
-# Create ConfigMap with alertmanager templates -> default and slack
-kubectl --namespace monitoring create configmap --dry-run external-url \
-  --from-literal=url=${EXTERNAL_URL}\
-  --output yaml \
-    > ./manifests/alertmanager/external-url.yaml
-# Workaround since `--namespace monitoring` from above is not preserved
-echo "  namespace: monitoring" >> ./manifests/alertmanager/external-url.yaml
-
 # Create ConfigMap for an external url
 kubectl --namespace monitoring create configmap --dry-run alertmanager-templates \
   --from-file=configs/alertmanager-templates \

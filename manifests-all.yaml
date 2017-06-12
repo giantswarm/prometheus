@@ -313,20 +313,13 @@ spec:
     spec:
       containers:
       - name: alertmanager
-        image: prom/alertmanager:latest
+        image: quay.io/prometheus/alertmanager:v0.7.1
         args:
           - '-config.file=/etc/alertmanager/config.yml'
           - '-storage.path=/alertmanager'
-          - '-web.external-url=$(EXTERNAL_URL)/alertmanager'
         ports:
         - name: alertmanager
           containerPort: 9093
-        env:
-        - name: EXTERNAL_URL
-          valueFrom:
-            configMapKeyRef:
-              name: external-url
-              key: url
         volumeMounts:
         - name: config-volume
           mountPath: /etc/alertmanager
@@ -345,20 +338,11 @@ spec:
         emptyDir: {}
 ---
 apiVersion: v1
-data:
-  url: https://some.url.com
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: external-url
-  namespace: monitoring
----
-apiVersion: v1
 kind: Service
 metadata:
   annotations:
     prometheus.io/scrape: 'true'
-    prometheus.io/path: '/alertmanager/metrics'
+    prometheus.io/path: '/metrics'
   labels:
     name: alertmanager
   name: alertmanager
@@ -366,7 +350,7 @@ metadata:
 spec:
   selector:
     app: alertmanager
-  #type: NodePort
+  type: NodePort
   ports:
   - name: alertmanager
     protocol: TCP
@@ -2498,12 +2482,12 @@ spec:
       serviceAccountName: prometheus-k8s
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.6.3
+        image: prom/prometheus:v1.7.0
         args:
           - '-storage.local.retention=12h'
           - '-storage.local.memory-chunks=500000'
           - '-config.file=/etc/prometheus/prometheus.yaml'
-          - '-alertmanager.url=http://alertmanager:9093/alertmanager'
+          - '-alertmanager.url=http://alertmanager:9093/'
         ports:
         - name: webui
           containerPort: 9090
@@ -2644,7 +2628,7 @@ spec:
         - |
           touch /tmp/metrics-temp
           while true
-            for directory in (du --bytes --separate-dirs --threshold=1M /mnt)
+            for directory in (du --bytes --separate-dirs --threshold=100M /mnt)
               echo $directory | read size path
               echo "node_directory_size_bytes{path=\"$path\"} $size" \
                 >> /tmp/metrics-temp

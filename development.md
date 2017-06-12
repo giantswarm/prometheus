@@ -1,6 +1,6 @@
 # Before pushing to this repo
 
-Create derived `ConfigMap`s and `manifests-all.yaml` by running the following commands or eyecuting `build.sh`:
+Create derived `ConfigMap`s and `manifests-all.yaml` by running the following commands or executing `build.sh`:
 
 ```bash
 # Create ConfigMap with prometheus rules for alerting

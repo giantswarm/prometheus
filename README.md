@@ -52,3 +52,7 @@ See grafana.net for some example [dashboards](https://grafana.net/dashboards) an
   - `Load`
   - `Prometheus`: `prometheus`
   - `Save & Open`
+
+## Credit
+
+Alertmanager configs and integration in this repository was heavily inspired by the implementation in [kayrus/prometheus-kubernetes](https://github.com/kayrus/prometheus-kubernetes).

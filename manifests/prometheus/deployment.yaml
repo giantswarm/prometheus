@@ -18,11 +18,12 @@ spec:
       serviceAccountName: prometheus-k8s
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.6.3
+        image: prom/prometheus:v1.7.0
         args:
           - '-storage.local.retention=12h'
           - '-storage.local.memory-chunks=500000'
-          - '-config.file=/etc/prometheus/prometheus.yml'
+          - '-config.file=/etc/prometheus/prometheus.yaml'
+          - '-alertmanager.url=http://alertmanager:9093/'
         ports:
         - name: webui
           containerPort: 9090
@@ -36,7 +37,12 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus
+        - name: rules-volume
+          mountPath: /etc/prometheus-rules
       volumes:
       - name: config-volume
         configMap:
           name: prometheus-core
+      - name: rules-volume
+        configMap:
+          name: prometheus-rules

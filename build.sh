@@ -1,8 +1,5 @@
-# Before pushing to this repo
+#!/bin/sh
 
-Create derived `ConfigMap`s and `manifests-all.yaml` by running the following commands or executing `build.sh`:
-
-```bash
 # Create ConfigMap with prometheus rules for alerting
 kubectl --namespace monitoring create configmap --dry-run prometheus-rules \
   --from-file=configs/prometheus/rules \
@@ -43,4 +40,3 @@ for file in $(find ./manifests -type f -name "*.yaml" | sort) ; do
   echo "---" >> "$target"
   cat "$file" >> "$target"
 done
-```

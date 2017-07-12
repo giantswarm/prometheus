@@ -280,8 +280,7 @@ data:
         receiver: slack_alert
       - match:
           severity: email
-        receiver: slack_alert
-    #   receiver: email_alert
+       receiver: email_alert
 
     receivers:
     - name: 'default'
@@ -2319,20 +2318,20 @@ spec:
         configMap:
           name: grafana-import-dashboards
 ---
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: grafana
-  namespace: monitoring
-spec:
-  rules:
-  - host: <yourchoice>.<cluster-id>.k8s.gigantic.io
-    http:
-      paths:
-      - path: /
-        backend:
-         serviceName: grafana
-         servicePort: 3000
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: grafana
+#   namespace: monitoring
+# spec:
+#   rules:
+#   - host: <yourchoice>.<cluster-id>.k8s.gigantic.io
+#     http:
+#       paths:
+#       - path: /
+#         backend:
+#          serviceName: grafana
+#          servicePort: 3000
 ---
 apiVersion: v1
 kind: Service

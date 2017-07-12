@@ -33,8 +33,8 @@
 #   - replicasets
 #   verbs: ["list", "watch"]
 # ---
-# apiVersion: v1
-# kind: ServiceAccount
-# metadata:
-#   name: kube-state-metrics
-#   namespace: monitoring
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-state-metrics
+  namespace: monitoring

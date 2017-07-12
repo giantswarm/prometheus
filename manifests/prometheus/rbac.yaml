@@ -31,8 +31,8 @@
 # - nonResourceURLs: ["/metrics"]
 #   verbs: ["get"]
 # ---
-# apiVersion: v1
-# kind: ServiceAccount
-# metadata:
-#   name: prometheus-k8s
-#   namespace: monitoring
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-k8s
+  namespace: monitoring

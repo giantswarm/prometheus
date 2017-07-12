@@ -2276,7 +2276,7 @@ spec:
           }
         ]'
     spec:
-      # serviceAccountName: prometheus-k8s
+      serviceAccountName: prometheus-k8s
       containers:
       - name: grafana-import-dashboards
         image: giantswarm/tiny-tools
@@ -2564,11 +2564,11 @@ spec:
 #   - replicasets
 #   verbs: ["list", "watch"]
 # ---
-# apiVersion: v1
-# kind: ServiceAccount
-# metadata:
-#   name: kube-state-metrics
-#   namespace: monitoring
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-state-metrics
+  namespace: monitoring
 ---
 apiVersion: v1
 kind: Service
@@ -2813,11 +2813,11 @@ metadata:
 # - nonResourceURLs: ["/metrics"]
 #   verbs: ["get"]
 # ---
-# apiVersion: v1
-# kind: ServiceAccount
-# metadata:
-#   name: prometheus-k8s
-#   namespace: monitoring
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-k8s
+  namespace: monitoring
 ---
 apiVersion: v1
 kind: Service

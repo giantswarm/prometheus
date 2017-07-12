@@ -24,7 +24,7 @@ spec:
           }
         ]'
     spec:
-      serviceAccountName: prometheus-k8s
+      # serviceAccountName: prometheus-k8s
       containers:
       - name: grafana-import-dashboards
         image: giantswarm/tiny-tools

@@ -278,9 +278,9 @@ data:
       - match:
           severity: slack
         receiver: slack_alert
-      - match:
-          severity: email
-       receiver: email_alert
+      # - match:
+      #     severity: email
+      #   receiver: email_alert
 
     receivers:
     - name: 'default'

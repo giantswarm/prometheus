@@ -2455,6 +2455,18 @@ data:
           - source_labels: [__meta_kubernetes_pod_container_port_number]
             action: keep
             regex: 9\d{3}
+      - job_name: 'kubernetes-cadvisor'
+        scheme: http
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - source_labels: [__address__]
+            regex: '(.*):10250'
+            replacement: '${1}:4194'
+            target_label: __address__
 kind: ConfigMap
 metadata:
   creationTimestamp: null
@@ -2586,7 +2598,7 @@ spec:
     protocol: TCP
   selector:
     app: kube-state-metrics
-    
+
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet

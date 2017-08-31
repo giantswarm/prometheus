@@ -20,6 +20,7 @@
 # - apiGroups: [""]
 #   resources:
 #   - nodes
+#   - nodes/proxy
 #   - services
 #   - endpoints
 #   - pods

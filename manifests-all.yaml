@@ -613,7 +613,7 @@ data:
             "step": 4
           }],
           "thresholds": "500,4000",
-          "title": "Interal Storage Queue Length",
+          "title": "Internal Storage Queue Length",
           "type": "singlestat",
           "valueFontSize": "70%",
           "valueMaps": [{
@@ -2455,6 +2455,25 @@ data:
           - source_labels: [__meta_kubernetes_pod_container_port_number]
             action: keep
             regex: 9\d{3}
+
+      - job_name: 'kubernetes-cadvisor'
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - action: labelmap
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+          - target_label: __address__
+            replacement: kubernetes.default.svc:443
+          - source_labels: [__meta_kubernetes_node_name]
+            regex: (.+)
+            target_label: __metrics_path__
+            replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+
 kind: ConfigMap
 metadata:
   creationTimestamp: null
@@ -2586,7 +2605,7 @@ spec:
     protocol: TCP
   selector:
     app: kube-state-metrics
-    
+
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
@@ -2802,6 +2821,7 @@ rules:
 - apiGroups: [""]
   resources:
   - nodes
+  - nodes/proxy
   - services
   - endpoints
   - pods

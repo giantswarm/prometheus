@@ -28,9 +28,7 @@ spec:
       containers:
       - name: read-du
         image: giantswarm/tiny-tools
-        imagePullPolicy: Always
-        # FIXME threshold via env var
-        # The
+        imagePullPolicy: IfNotPresent
         command:
         - fish
         - --command
@@ -53,6 +51,7 @@ spec:
           mountPath: /tmp
       - name: caddy
         image: dockermuenster/caddy:0.9.3
+        imagePullPolicy: IfNotPresent
         command:
         - "caddy"
         - "-port=9102"

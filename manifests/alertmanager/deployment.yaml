@@ -14,12 +14,22 @@ spec:
       labels:
         app: alertmanager
     spec:
+      serviceAccountName: prometheus-k8s
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: monitoringnode
+                operator: In
+                values:
+                - "true"
       containers:
       - name: alertmanager
-        image: quay.io/prometheus/alertmanager:v0.7.1
+        image: quay.io/prometheus/alertmanager:v0.15.0-rc.1
         args:
-          - '-config.file=/etc/alertmanager/config.yml'
-          - '-storage.path=/alertmanager'
+          - '--config.file=/etc/alertmanager/config.yml'
+          - '--storage.path=/data'
         ports:
         - name: alertmanager
           containerPort: 9093
@@ -28,8 +38,8 @@ spec:
           mountPath: /etc/alertmanager
         - name: templates-volume
           mountPath: /etc/alertmanager-templates
-        - name: alertmanager
-          mountPath: /alertmanager
+        - name: alertmanager-persistent-storage
+          mountPath: /data
       volumes:
       - name: config-volume
         configMap:
@@ -37,5 +47,7 @@ spec:
       - name: templates-volume
         configMap:
           name: alertmanager-templates
-      - name: alertmanager
-        emptyDir: {}
+      - name: alertmanager-persistent-storage
+        hostPath:
+          path: /data/alertmanager
+          type: DirectoryOrCreate

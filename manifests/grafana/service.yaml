@@ -7,9 +7,11 @@ metadata:
     app: grafana
     component: core
 spec:
-  type: NodePort
-  ports:
-    - port: 3000
+  type: ClusterIP
   selector:
     app: grafana
     component: core
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000

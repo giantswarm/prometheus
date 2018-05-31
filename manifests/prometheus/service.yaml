@@ -9,11 +9,11 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
 spec:
-  type: NodePort
-  ports:
-    - port: 9090
-      protocol: TCP
-      name: webui
+  type: ClusterIP
   selector:
     app: prometheus
     component: core
+  ports:
+  - protocol: TCP
+    port: 9090
+    targetPort: 9090

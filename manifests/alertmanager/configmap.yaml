@@ -10,16 +10,7 @@ data:
       # if it has not been updated.
       resolve_timeout: 5m
 
-      # The smarthost and SMTP sender used for mail notifications.
-      smtp_smarthost: 'smtp.gmail.com:587'
-      smtp_from: 'foo@bar.com'
-      smtp_auth_username: 'foo@bar.com'
-      smtp_auth_password: 'barfoo'
-
-      # The API URL to use for Slack notifications.
-      slack_api_url: 'https://hooks.slack.com/services/some/api/token'
-
-    # # The directory from which notification templates are read.
+    # The directory from which notification templates are read.
     templates:
     - '/etc/alertmanager-templates/*.tmpl'
 
@@ -29,7 +20,6 @@ data:
       # The labels by which incoming alerts are grouped together. For example,
       # multiple alerts coming in for cluster=A and alertname=LatencyHigh would
       # be batched into a single group.
-
       group_by: ['alertname', 'cluster', 'service']
 
       # When a new group of alerts is created by an incoming alert, wait at
@@ -37,46 +27,77 @@ data:
       # This way ensures that you get multiple alerts for the same group that start
       # firing shortly after another are batched together on the first
       # notification.
-
       group_wait: 30s
 
       # When the first notification was sent, wait 'group_interval' to send a batch
       # of new alerts that started firing for that group.
-
       group_interval: 5m
 
       # If an alert has successfully been sent, wait 'repeat_interval' to
       # resend them.
-
-      #repeat_interval: 1m
       repeat_interval: 15m
 
       # A default receiver
-
       # If an alert isn't caught by a route, send it to default.
-      receiver: default
+      receiver: email_receiver
 
       # All the above attributes are inherited by all child routes and can
       # overwritten on each.
 
       # The child route trees.
       routes:
-      # Send severity=slack alerts to slack.
-      - match:
-          severity: slack
-        receiver: slack_alert
-      # - match:
-      #     severity: email
-      #   receiver: email_alert
+      - match_re:
+          severity: alert
+        receiver: wechat_receiver
+      - match_re:
+          severity: warning|alert
+        receiver: email_receiver
+      - match_re:
+          severity: notice|warning|alert
+        receiver: webhook_receiver
 
     receivers:
-    - name: 'default'
-      slack_configs:
-      - channel: '#alertmanager-test'
-        text: '<!channel>{{ template "slack.devops.text" . }}'
-        send_resolved: true
+    - name: 'wechat_receiver'
+      wechat_configs:
+      - corp_id: '企业微信账号ID'
+        agent_id: ' 企业微信应用ID'
+        api_secret: '企业微信应用秘钥'
+        api_url: 'https://qyapi.weixin.qq.com/cgi-bin/'
+        to_user: 'develops'
+        to_party: 'develops'
+        to_tag: 'develops'
+        message: '{{ template "wechat.default.message" . }}'
+        send_resolved: false
 
-    - name: 'slack_alert'
-      slack_configs:
-      - channel: '#alertmanager-test'
+    - name: 'email_receiver'
+      email_configs:
+      - to: 'develops@yoursite.com'
+        from: 'mornitoring@yoursite.com'
+        smarthost: 'smtp.qq.com:587'
+        auth_username: 'mornitoring@yoursite.com'
+        auth_password: 'yourpassword'
+        auth_secret:
+        auth_identity:
+        html: '{{ template "email.default.html" . }}'
+        require_tls: true
+        hello: 'localhost'
+        send_resolved: false
+
+    #webhook post数据格式参考：https://prometheus.io/docs/alerting/configuration/#webhook_config
+    - name: 'webhook_receiver'
+      webhook_configs:
+      - url: 'http://webhook.yoursite.com'
         send_resolved: true
+        http_config:
+          basic_auth:
+            username:
+            password:
+          bearer_token:
+          bearer_token_file:
+          tls_config:
+            ca_file:
+            cert_file:
+            key_file:
+            server_name:
+            insecure_skip_verify:
+          proxy_url:

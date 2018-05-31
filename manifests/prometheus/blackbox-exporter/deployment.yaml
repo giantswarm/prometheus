@@ -1,18 +1,18 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: kube-state-metrics
+  name: blackbox
   namespace: monitoring
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: kube-state-metrics
+        app: blackbox
     spec:
       serviceAccountName: prometheus-k8s
       containers:
-      - name: kube-state-metrics
-        image: googlecontainer/kube-state-metrics:v1.2.0
+      - name: blackbox
+        image: prom/blackbox-exporter:v0.12.0
         ports:
-        - containerPort: 8080
+        - containerPort: 9115

@@ -1,13 +1,5 @@
 #!/bin/sh
 
-# Create ConfigMap with prometheus rules for alerting
-kubectl --namespace monitoring create configmap --dry-run prometheus-rules \
-  --from-file=configs/prometheus/rules \
-  --output yaml \
-    > ./manifests/prometheus/prometheus-rules.yaml
-# Workaround since `--namespace monitoring` from above is not preserved
-echo "  namespace: monitoring" >> ./manifests/prometheus/prometheus-rules.yaml
-
 # Create ConfigMap for an external url
 kubectl --namespace monitoring create configmap --dry-run alertmanager-templates \
   --from-file=configs/alertmanager-templates \
@@ -26,7 +18,7 @@ echo "  namespace: monitoring" >> ./manifests/grafana/import-dashboards/configma
 
 # Create ConfigMap with Prometheus config
 kubectl --namespace monitoring create configmap --dry-run prometheus-core \
-  --from-file=configs/prometheus/prometheus.yaml \
+  --from-file=configs/prometheus \
   --output yaml \
     > ./manifests/prometheus/configmap.yaml
 # Workaround since `--namespace monitoring` from above is not preserved
@@ -34,7 +26,9 @@ echo "  namespace: monitoring" >> ./manifests/prometheus/configmap.yaml
 
 # Create one single manifest file
 target="./manifests-all.yaml"
-rm "$target"
+if [ -f "$target" ]; then
+  rm "$target"
+fi
 echo "# Derived from ./manifests" >> "$target"
 for file in $(find ./manifests -type f -name "*.yaml" | sort) ; do
   echo "---" >> "$target"

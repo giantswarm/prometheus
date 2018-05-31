@@ -12,42 +12,16 @@
 {{ end }}{{ end }}
 
 
-{{ define "slack.default.title" }}{{ template "__subject" . }}{{ end }}
-{{ define "slack.default.username" }}{{ template "__alertmanager" . }}{{ end }}
-{{ define "slack.default.fallback" }}{{ template "slack.default.title" . }} | {{ template "slack.default.titlelink" . }}{{ end }}
-{{ define "slack.default.pretext" }}{{ end }}
-{{ define "slack.default.titlelink" }}{{ template "__alertmanagerURL" . }}{{ end }}
-{{ define "slack.default.iconemoji" }}{{ end }}
-{{ define "slack.default.iconurl" }}{{ end }}
-{{ define "slack.default.text" }}{{ end }}
-
-
-{{ define "hipchat.default.from" }}{{ template "__alertmanager" . }}{{ end }}
-{{ define "hipchat.default.message" }}{{ template "__subject" . }}{{ end }}
-
-
-{{ define "pagerduty.default.description" }}{{ template "__subject" . }}{{ end }}
-{{ define "pagerduty.default.client" }}{{ template "__alertmanager" . }}{{ end }}
-{{ define "pagerduty.default.clientURL" }}{{ template "__alertmanagerURL" . }}{{ end }}
-{{ define "pagerduty.default.instances" }}{{ template "__text_alert_list" . }}{{ end }}
-
-
-{{ define "opsgenie.default.message" }}{{ template "__subject" . }}{{ end }}
-{{ define "opsgenie.default.description" }}{{ .CommonAnnotations.SortedPairs.Values | join " " }}
-{{ if gt (len .Alerts.Firing) 0 -}}
+{{ define "wechat.default.message" }}{{ .CommonAnnotations.SortedPairs.Values | join " " }}
+{{ if gt (len .Alerts.Firing) 0 }}
 Alerts Firing:
 {{ template "__text_alert_list" .Alerts.Firing }}
-{{- end }}
-{{ if gt (len .Alerts.Resolved) 0 -}}
+{{ end }}
+{{ if gt (len .Alerts.Resolved) 0 }}
 Alerts Resolved:
 {{ template "__text_alert_list" .Alerts.Resolved }}
-{{- end }}
-{{- end }}
-{{ define "opsgenie.default.source" }}{{ template "__alertmanagerURL" . }}{{ end }}
-
-
-{{ define "victorops.default.message" }}{{ template "__subject" . }} | {{ template "__alertmanagerURL" . }}{{ end }}
-{{ define "victorops.default.from" }}{{ template "__alertmanager" . }}{{ end }}
+{{ end }}
+{{ end }}
 
 
 {{ define "email.default.subject" }}{{ template "__subject" . }}{{ end }}
@@ -177,16 +151,3 @@ SOFTWARE.
 </html>
 
 {{ end }}
-
-{{ define "pushover.default.title" }}{{ template "__subject" . }}{{ end }}
-{{ define "pushover.default.message" }}{{ .CommonAnnotations.SortedPairs.Values | join " " }}
-{{ if gt (len .Alerts.Firing) 0 }}
-Alerts Firing:
-{{ template "__text_alert_list" .Alerts.Firing }}
-{{ end }}
-{{ if gt (len .Alerts.Resolved) 0 }}
-Alerts Resolved:
-{{ template "__text_alert_list" .Alerts.Resolved }}
-{{ end }}
-{{ end }}
-{{ define "pushover.default.url" }}{{ template "__alertmanagerURL" . }}{{ end }}

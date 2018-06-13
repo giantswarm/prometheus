@@ -7,7 +7,6 @@ metadata:
   labels:
     name: alertmanager
   name: alertmanager
-  namespace: monitoring
 spec:
   type: ClusterIP
   selector:

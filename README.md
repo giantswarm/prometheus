@@ -1,22 +1,12 @@
 # Kubernetes Setup for Prometheus and Grafana
 
+
 ## Quick start
+* To quickly start all the things `./deploy.sh`
+* To shut down all components `kubectl delete namespace $NAMESPACE`
 
-To quickly start all the things just do this:
-```bash
-kubectl apply \
-  --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests-all.yaml
-```
-
-This will create the namespace `monitoring` and bring up all components in there.
-
-To shut down all components again you can just delete that namespace:
-```bash
-kubectl delete namespace monitoring
-```
 
 ## Default Dashboards
-
 If you want to re-import the default dashboards from this setup run this job:
 ```bash
 kubectl apply --filename ./manifests/grafana/import-dashboards/job.yaml
@@ -24,7 +14,7 @@ kubectl apply --filename ./manifests/grafana/import-dashboards/job.yaml
 
 In case the job already exists from an earlier run, delete it before:
 ```bash
-kubectl --namespace monitoring delete job grafana-import-dashboards
+kubectl -n $NAMESPACE delete job grafana-import-dashboards
 ```
 
 

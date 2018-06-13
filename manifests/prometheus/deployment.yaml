@@ -2,7 +2,6 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: prometheus-core
-  namespace: monitoring
   labels:
     app: prometheus
     component: core

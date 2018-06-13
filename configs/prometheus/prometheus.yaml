@@ -20,7 +20,7 @@ alerting:
       regex: alertmanager
       action: keep
     - source_labels: [__meta_kubernetes_namespace]
-      regex: monitoring
+      regex: $NAMESPACE
       action: keep
 
 

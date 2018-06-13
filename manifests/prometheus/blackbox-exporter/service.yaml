@@ -4,7 +4,6 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
   name: blackbox
-  namespace: monitoring
   labels:
     app: blackbox
 spec:

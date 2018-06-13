@@ -25,7 +25,7 @@ kubectl apply --filename https://raw.githubusercontent.com/giantswarm/kubernetes
 
 ## Checking Prometheus
 
-Wait a bit for all the pods to come up. Then Prometheus should be ready and running. We can check the Prometheus targets at `https://api.<cluster-id>.k8s.gigantic.io/api/v1/proxy/namespaces/monitoring/services/prometheus:9090/targets`
+Wait a bit for all the pods to come up. Then Prometheus should be ready and running. We can check the Prometheus targets at `https://api.<cluster-id>.k8s.gigantic.io/api/v1/proxy/namespaces/$NAMESPACE/services/prometheus:9090/targets`
 
 ![Prometheus Targets](prometheus_targets.png)
 
@@ -46,7 +46,7 @@ Now that we know Prometheus is up and running we can check for Grafana.
 There's an Ingress set up for Grafana, however, you need to set it to your desired domain. You can do this by editing the ingress:
 
 ```bash
-kubectl --namespace monitoring edit ingress grafana
+kubectl -n $NAMESPACE edit ingress grafana
 ```
 
 This will open the ingress YAML in your standard editor. In the `host` field replace `yourchoice` with a subdomain of your choice and `clusterid` with your cluster ID. After saving and exiting your editor, wait a while and Grafana should be available at `http://<yourchoice>.<cluster-id>.k8s.gigantic.io/`.
@@ -72,8 +72,8 @@ You can now checkout the included dashboards, e.g. the [Cluster Monitoring Overv
 _Note:_ If persistent storage is not set up in your cluster, the preset datasource and dashboards will vanish if the Grafana Pod gets rescheduled. To get them back run:
 
 ```nohighlight
-kubectl --namespace=monitoring delete job grafana-import-dashboards
-kubectl --namespace=monitoring create --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests/grafana/import-dashboards/job.yaml
+kubectl -n $NAMESPACE delete job grafana-import-dashboards
+kubectl -n $NAMESPACE create --filename https://raw.githubusercontent.com/giantswarm/kubernetes-prometheus/master/manifests/grafana/import-dashboards/job.yaml
 ```
 
 ## Next Steps

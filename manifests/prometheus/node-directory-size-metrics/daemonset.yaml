@@ -2,7 +2,6 @@ apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   name: node-directory-size-metrics
-  namespace: monitoring
   annotations:
     description: |
       This `DaemonSet` provides metrics in Prometheus format about disk usage on the nodes.

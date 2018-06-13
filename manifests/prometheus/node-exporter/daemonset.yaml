@@ -2,7 +2,6 @@ apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   name: prometheus-node-exporter
-  namespace: monitoring
   labels:
     app: prometheus
     component: node-exporter

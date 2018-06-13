@@ -4,7 +4,6 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
   name: kube-state-metrics
-  namespace: monitoring
   labels:
     app: kube-state-metrics
 spec:

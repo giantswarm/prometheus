@@ -14,3 +14,9 @@
 kubectl -n $NAMESPACE delete job grafana-import-dashboards
 kubectl -n $NAMESPACE apply -f ./manifests/grafana/import-dashboards/job.yaml
 ```
+
+## 参考项目
+* https://github.com/giantswarm/kubernetes-prometheus
+* https://github.com/kayrus/prometheus-kubernetes
+* https://github.com/kubernetes/charts/tree/master/stable/prometheus
+* https://github.com/rancher/community-catalog/tree/master/kubernetes-templates/Prometheus

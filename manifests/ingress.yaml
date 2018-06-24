@@ -4,7 +4,7 @@ metadata:
   name: prometheus
 spec:
   rules:
-  - host: prometheus.k8s.yoursite.com
+  - host: prometheus.monitoring.yoursite.com
     http:
       paths:
       - path: /
@@ -18,7 +18,7 @@ metadata:
   name: grafana
 spec:
   rules:
-  - host: grafana.k8s.yoursite.com
+  - host: grafana.monitoring.yoursite.com
     http:
       paths:
       - path: /
@@ -32,7 +32,7 @@ metadata:
   name: alertmanager
 spec:
   rules:
-  - host: alertmanager.k8s.yoursite.com
+  - host: alertmanager.monitoring.yoursite.com
     http:
       paths:
       - path: /

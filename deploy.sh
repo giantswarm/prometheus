@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # 根据实际情况修改以下环境变量配置
-NAMESPACE="monitoring"
+NAMESPACE=monitoring
 PROMETHEUS_URL=prometheus.monitoring.yoursite.com
 GRAFANA_URL=grafana.monitoring.yoursite.com
 ALERTMANAGER_URL=alertmanager.monitoring.yoursite.com

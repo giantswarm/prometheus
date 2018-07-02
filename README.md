@@ -1,7 +1,7 @@
-# Kubernetes Setup for Prometheus、Grafana、AlertManager
+> Kubernetes Setup for Prometheus、Grafana、AlertManager
 
 ## Quick Start
-* 指定监控组件部署节点，打标签`monitoringnode=true`
+* 监控组件部署节点打标签`monitoringnode=true`
 * 部署节点/data目录增加完全写入权限
 * 调整部署脚本内的变量配置并部署服务 `./deploy.sh`
 * 下线服务 `kubectl delete namespace $NAMESPACE`

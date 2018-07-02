@@ -4,7 +4,7 @@ metadata:
   name: prometheus
 spec:
   rules:
-  - host: prometheus.monitoring.yoursite.com
+  - host: $PROMETHEUS_URL
     http:
       paths:
       - path: /
@@ -18,7 +18,7 @@ metadata:
   name: grafana
 spec:
   rules:
-  - host: grafana.monitoring.yoursite.com
+  - host: $GRAFANA_URL
     http:
       paths:
       - path: /
@@ -32,7 +32,7 @@ metadata:
   name: alertmanager
 spec:
   rules:
-  - host: alertmanager.monitoring.yoursite.com
+  - host: $ALERTMANAGER_URL
     http:
       paths:
       - path: /

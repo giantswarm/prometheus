@@ -58,23 +58,23 @@ data:
     receivers:
     - name: 'wechat_receiver'
       wechat_configs:
-      - corp_id: '企业微信账号ID'
-        agent_id: ' 企业微信应用ID'
-        api_secret: '企业微信应用秘钥'
+      - corp_id: '$WECHAT_CORP_ID'
+        agent_id: '$WECHAT_AGENT_ID'
+        api_secret: '$WECHAT_API_SECRET'
         api_url: 'https://qyapi.weixin.qq.com/cgi-bin/'
-        to_user: 'develops'
-        to_party: 'develops'
-        to_tag: 'develops'
+        to_user: '$WECHAT_TO_USER'
+        to_party: '$WECHAT_TO_PARTY'
+        to_tag: '$WECHAT_TO_TAG'
         message: '{{ template "wechat.default.message" . }}'
         send_resolved: false
 
     - name: 'email_receiver'
       email_configs:
-      - to: 'develops@yoursite.com'
-        from: 'mornitoring@yoursite.com'
-        smarthost: 'smtp.qq.com:587'
-        auth_username: 'mornitoring@yoursite.com'
-        auth_password: 'yourpassword'
+      - to: '$ALERT_TO'
+        from: '$ALERT_FROM'
+        smarthost: '$SMTP_HOST'
+        auth_username: '$SMTP_USER'
+        auth_password: '$SMTP_PASSWORD'
         auth_secret:
         auth_identity:
         html: '{{ template "email.default.html" . }}'
@@ -85,7 +85,7 @@ data:
     #webhook post数据格式参考：https://prometheus.io/docs/alerting/configuration/#webhook_config
     - name: 'webhook_receiver'
       webhook_configs:
-      - url: 'http://webhook.yoursite.com'
+      - url: '$ALERT_WEBHOOK'
         send_resolved: true
         http_config:
           basic_auth:

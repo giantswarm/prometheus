@@ -40,10 +40,10 @@ spec:
         resources:
           requests:
             cpu: 500m
-            memory: 500M
+            memory: 500Mi
           limits:
             cpu: 500m
-            memory: 500M
+            memory: 500Mi
         volumeMounts:
         - name: config-volume
           mountPath: /etc/config

@@ -37,13 +37,13 @@ spec:
         ports:
         - name: webui
           containerPort: 9090
-        resources:
-          requests:
-            cpu: 500m
-            memory: 500Mi
-          limits:
-            cpu: 500m
-            memory: 500Mi
+        #resources:
+        #  requests:
+        #    cpu: 500m
+        #    memory: 500Mi
+        #  limits:
+        #    cpu: 500m
+        #    memory: 500Mi
         volumeMounts:
         - name: config-volume
           mountPath: /etc/config

@@ -151,7 +151,7 @@ scrape_configs:
     honor_labels: true
     static_configs:
       - targets:
-        - traefik-dashboard.default.svc
+        - traefik-admin.lb.svc
 
   - job_name: 'kubernetes-services'
     honor_labels: true

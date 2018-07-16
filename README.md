@@ -1,19 +1,17 @@
-> Kubernetes Setup for Prometheus、Grafana、AlertManager
+> Kubernetes compose orchestra for Prometheus、Grafana、AlertManager
 
 ## Quick Start
-* 监控组件部署节点打标签`monitoringnode=true`
-* 部署节点/data目录增加完全写入权限
-* 调整部署脚本内的变量配置并部署服务 `./deploy.sh`
-* 下线服务 `kubectl delete namespace $NAMESPACE`
+* `kubectl label nodes your-desired-node monitoringnode=true`
+* `cp -a .env.example .env` and update it (avoid the # char1)
+* `./deploy.sh`
 
-
-## 重新导入仪表盘
+## Reimport grafana dashboad
 ```bash
 kubectl -n $NAMESPACE delete job grafana-import-dashboards
 kubectl -n $NAMESPACE apply -f ./manifests/grafana/import-dashboards/job.yaml
 ```
 
-## 参考项目
+## Reference
 * https://github.com/giantswarm/kubernetes-prometheus
 * https://github.com/kayrus/prometheus-kubernetes
 * https://github.com/kubernetes/charts/tree/master/stable/prometheus

@@ -1,3 +1,4 @@
+.idea/
 .env
 manifests/alertmanager/alertmanager-templates.yaml
 manifests/grafana/import-dashboards/configmap.yaml

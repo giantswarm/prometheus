@@ -20,10 +20,6 @@ kubectl create configmap --dry-run prometheus-core \
 
 # Create one single manifest file
 target="./manifests-all.yaml"
-if [ -f "$target" ]; then
-  rm "$target"
-fi
-echo "# Derived from ./manifests" >> "$target"
 for file in $(find ./manifests -type f -name "*.yaml" | sort) ; do
   echo "---" >> "$target"
   cat "$file" >> "$target"
@@ -40,4 +36,4 @@ done
 kubectl create namespace $NAMESPACE
 kubectl -n $NAMESPACE apply -f ./manifests-all.yaml
 
-rm manifests-all.yaml
+rm $target

@@ -2,7 +2,7 @@
 
 ## Quick Start
 * `kubectl label nodes your-desired-node monitoringnode=true`
-* `cp -a .env.example .env` and update it (avoid the # char1)
+* `cp -a .env.example .env` and update it (avoid the # char)
 * `./deploy.sh`
 
 ## Reimport grafana dashboad

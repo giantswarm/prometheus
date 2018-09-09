@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: blackbox
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: blackbox
+    spec:
+      serviceAccountName: prometheus-k8s
+      containers:
+      - name: blackbox
+        image: prom/blackbox-exporter:v0.12.0
+        ports:
+        - containerPort: 9115

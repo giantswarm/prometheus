@@ -2,7 +2,6 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: prometheus-core
-  namespace: monitoring
   labels:
     app: prometheus
     component: core
@@ -16,33 +15,45 @@ spec:
         component: core
     spec:
       serviceAccountName: prometheus-k8s
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: monitoringnode
+                operator: In
+                values:
+                - "true"
       containers:
       - name: prometheus
-        image: prom/prometheus:v1.7.0
+        image: prom/prometheus:v2.2.1
         args:
-          - '-storage.local.retention=12h'
-          - '-storage.local.memory-chunks=500000'
-          - '-config.file=/etc/prometheus/prometheus.yaml'
-          - '-alertmanager.url=http://alertmanager:9093/'
+          - '--config.file=/etc/config/prometheus.yaml'
+          - '--storage.tsdb.path=/data'
+          - '--storage.tsdb.retention=48h'
+          - '--web.console.libraries=/etc/prometheus/console_libraries'
+          - '--web.console.templates=/etc/prometheus/consoles'
+          - '--web.enable-lifecycle'
         ports:
         - name: webui
           containerPort: 9090
-        resources:
-          requests:
-            cpu: 500m
-            memory: 500M
-          limits:
-            cpu: 500m
-            memory: 500M
+        #resources:
+        #  requests:
+        #    cpu: 500m
+        #    memory: 500Mi
+        #  limits:
+        #    cpu: 500m
+        #    memory: 500Mi
         volumeMounts:
         - name: config-volume
-          mountPath: /etc/prometheus
-        - name: rules-volume
-          mountPath: /etc/prometheus-rules
+          mountPath: /etc/config
+        - name: prometheus-persistent-storage
+          mountPath: /data
       volumes:
       - name: config-volume
         configMap:
           name: prometheus-core
-      - name: rules-volume
-        configMap:
-          name: prometheus-rules
+      - name: prometheus-persistent-storage
+        hostPath:
+          path: /data/prometheus
+          type: DirectoryOrCreate

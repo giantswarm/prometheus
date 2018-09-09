@@ -1,0 +1,63 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus-k8s
+  namespace: $NAMESPACE
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups:
+    - ""
+  resources:
+    - nodes
+    - pods
+    - services
+    - endpoints
+    - ingresses
+    - nodes/proxy
+    - limitranges
+    - resourcequotas
+    - replicationcontrollers
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+  verbs:
+    - get
+- apiGroups:
+    - "extensions"
+  resources:
+    - ingresses
+    - ingresses/status
+    - daemonsets
+    - deployments
+    - replicasets
+  verbs:
+    - get
+    - list
+    - watch
+- nonResourceURLs:
+    - "/metrics"
+  verbs:
+    - get
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-k8s
+  namespace: $NAMESPACE

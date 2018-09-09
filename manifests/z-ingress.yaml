@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus
+spec:
+  rules:
+  - host: $PROMETHEUS_URL
+    http:
+      paths:
+      - path: /
+        backend:
+         serviceName: prometheus
+         servicePort: 9090
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: grafana
+spec:
+  rules:
+  - host: $GRAFANA_URL
+    http:
+      paths:
+      - path: /
+        backend:
+         serviceName: grafana
+         servicePort: 3000
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: alertmanager
+spec:
+  rules:
+  - host: $ALERTMANAGER_URL
+    http:
+      paths:
+      - path: /
+        backend:
+         serviceName: alertmanager
+         servicePort: 9093

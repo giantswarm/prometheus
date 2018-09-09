@@ -3,15 +3,14 @@ kind: Service
 metadata:
   annotations:
     prometheus.io/scrape: 'true'
-    prometheus.io/path: '/metrics'
+  name: blackbox
   labels:
-    name: alertmanager
-  name: alertmanager
+    app: blackbox
 spec:
   type: ClusterIP
   selector:
-    app: alertmanager
+    app: blackbox
   ports:
   - protocol: TCP
-    port: 9093
-    targetPort: 9093
+    port: 9115
+    targetPort: 9115

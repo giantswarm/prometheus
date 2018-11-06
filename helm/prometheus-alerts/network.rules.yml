@@ -1,0 +1,26 @@
+groups:
+- name: network
+  rules:
+  - alert: DNSErrorRateTooHigh
+    expr: rate(dns_error_total[15m]) > 0
+    for: 15m
+    labels:
+      severity: notify
+    annotations:
+      description: DNS error rate is too high for {{ $labels.pod_name }}.
+
+  - alert: NetworkErrorRateTooHigh
+    expr: rate(network_error_total[15m]) > 0
+    for: 15m
+    labels:
+      severity: notify
+    annotations:
+      description: Network error rate is too high for {{ $labels.pod_name }}.
+
+  - alert: SYNRetransmissionRateTooHigh
+    expr: rate(node_netstat_TcpExt_TCPSynRetrans[15m]) > 3
+    for: 15m
+    labels:
+      severity: notify
+    annotations:
+      description: SYN retransmission rate is too high for {{ $labels.instance }}.

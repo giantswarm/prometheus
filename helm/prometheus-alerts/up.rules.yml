@@ -1,0 +1,59 @@
+groups:
+- name: up
+  rules:
+  - alert: APIServerDown
+    expr: up{app="kubernetes"} == 0
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      description: Kubernetes API Server ({{ $labels.instance }}) is down.
+
+  - alert: CadvisorDown
+    expr: up{app="cadvisor"} == 0
+    for: 15m
+    labels:
+      severity: notify
+    annotations:
+      description: Cadvisor ({{ $labels.ip }}) is down.
+
+  - alert: KubeletDown
+    expr: up{app="kubelet"} == 0
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      description: Kubelet ({{ $labels.ip }}) is down.
+      opsrecipe: https://github.com/giantswarm/ops-recipes/blob/master/020-kubelet-is-down.md
+
+  - alert: KubeStateMetricsDown
+    expr: up{app="kube-state-metrics"} == 0
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      description: KubeStateMetrics ({{ $labels.instance }}) is down.
+
+  - alert: NodeExporterDown
+    expr: up{app="node-exporter"} == 0
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      description: NodeExporter ({{ $labels.ip }}) is down.
+
+  - alert: TargetDown
+    expr: up{cluster_type="host", app!~"cadvisor|etcd|kubelet|kubernetes|master|node-exporter|worker"} == 0
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      description: Target {{ $labels.namespace }}/{{ $labels.app }} ({{ $labels.instance }}) is down.
+
+  - alert: TargetIsFlapping
+    expr: changes(up[30m]) > 5
+    for: 5m
+    labels:
+      severity: notify
+    annotations:
+      description: Target {{ $labels.app }} ({{ $labels.instance }}) is flapping.

@@ -1,0 +1,12 @@
+groups:
+- name: daemonset
+  rules:
+  - alert: DaemonSetNotSatisfied
+    expr: kube_daemonset_status_number_unavailable{} > 0
+    for: 15m
+    labels:
+      severity: page
+    annotations:
+      description: Daemonset {{ $labels.exported_namespace}}/{{ $labels.daemonset }}
+        is not satisfied.
+

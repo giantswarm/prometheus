@@ -1,0 +1,18 @@
+groups:
+- name: disk
+  rules:
+  - alert: PersistentVolumeSpaceTooLow
+    expr: 100 * node_filesystem_free{mountpoint=~"/rootfs/var/lib/kubelet/.*"} / node_filesystem_size{mountpoint=~"/rootfs/var/lib/kubelet/.*"} < 10
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      description: Persistent volume {{ $labels.mountpoint}} on {{ $labels.instance }} does not have enough free space.
+
+  - alert: RootVolumeSpaceTooLow
+    expr: 100 * node_filesystem_free{mountpoint="/rootfs"} / node_filesystem_size{mountpoint="/rootfs"} < 10
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      description: Root volume {{ $labels.mountpoint}} on {{ $labels.instance }} does not have enough free space.

@@ -1,6 +1,6 @@
 # Prometheus
 
-Here it is a new opinionated [Prometheus](https://prometheus.io/) recipe thought to be deployed in the Giant Swarm tenant clusters.
+An opinionated [Prometheus](https://prometheus.io/) Helm chart for deployment in Giant Swarm clusters.
 
 ## Prerequisites
 

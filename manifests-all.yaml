@@ -2537,7 +2537,7 @@ metadata:
   name: kube-state-metrics
   namespace: monitoring
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:

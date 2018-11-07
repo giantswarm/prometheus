@@ -104,6 +104,7 @@ data:
           - source_labels: [__meta_kubernetes_pod_container_port_number]
             action: keep
             regex: 9\d{3}
+
       - job_name: 'kubernetes-cadvisor'
         scheme: https
         tls_config:
@@ -112,7 +113,6 @@ data:
         kubernetes_sd_configs:
           - role: node
         relabel_configs:
-          - action: labelmap
           - action: labelmap
             regex: __meta_kubernetes_node_label_(.+)
           - target_label: __address__

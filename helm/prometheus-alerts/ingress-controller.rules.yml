@@ -1,0 +1,18 @@
+groups:
+- name: ingress-controller
+  rules:
+  - alert: IngressControllerReloadIsFailing
+    expr: increase(ingress_controller_errors{count="reloads"}[5m]) > 1
+    for: 5m
+    labels:
+      severity: notify
+    annotations:
+      description: Ingress Controller cannot reload new configuration. Please check IC logs.
+
+  - alert: IngressControllerSSLCertificateWillExpireSoon
+    expr: avg(ingress_controller_ssl_expire_time_seconds{host!~"(etcd|api).*"}) without (instance) < (time() + (10 * 24 * 3600))
+    for: 5m
+    labels:
+      severity: notify
+    annotations:
+      description: SSL certificate for {{ $labels.host }} will expire in less than 10 days.

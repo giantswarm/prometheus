@@ -1,0 +1,18 @@
+groups:
+- name: volume
+  rules:
+  - alert: VolumeUsedInodes
+    expr: kubelet_volume_stats_inodes_used{} / kubelet_volume_stats_inodes{} > 0.9
+    for: 10m
+    labels:
+      severity: notify
+    annotations:
+      description: Volume {{ $labels.persistentvolumeclaim }} has more than 90% inodes used.
+
+  - alert: VolumeUsedSpace
+    expr: kubelet_volume_stats_used_bytes{} / kubelet_volume_stats_capacity_bytes{} > 0.9
+    for: 10m
+    labels:
+      severity: notify
+    annotations:
+      description: Volume {{ $labels.persistentvolumeclaim }} has more than 90% space used.

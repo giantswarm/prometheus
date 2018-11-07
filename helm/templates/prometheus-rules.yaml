@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  labels:
+    app: prometheus
+data:
+{{ (.Files.Glob "prometheus-alerts/*").AsConfig | indent 2 }}

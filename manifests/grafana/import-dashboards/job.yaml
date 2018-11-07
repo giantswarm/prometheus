@@ -13,18 +13,20 @@ spec:
       labels:
         app: grafana
         component: import-dashboards
-      annotations:
-        pod.beta.kubernetes.io/init-containers: '[
-          {
-            "name": "wait-for-endpoints",
-            "image": "giantswarm/tiny-tools",
-            "imagePullPolicy": "IfNotPresent",
-            "command": ["fish", "-c", "echo \"waiting for endpoints...\"; while true; set endpoints (curl -s --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt --header \"Authorization: Bearer \"(cat /var/run/secrets/kubernetes.io/serviceaccount/token) https://kubernetes.default.svc/api/v1/namespaces/monitoring/endpoints/grafana); echo $endpoints | jq \".\"; if test (echo $endpoints | jq -r \".subsets[]?.addresses // [] | length\") -gt 0; exit 0; end; echo \"waiting...\";sleep 1; end"],
-            "args": ["monitoring", "grafana"]
-          }
-        ]'
     spec:
       serviceAccountName: prometheus-k8s
+      initContainers:
+      - name: wait-for-grafana
+        image: giantswarm/tiny-tools
+        args:
+        - /bin/sh
+        - -c
+        - >
+          set -x;
+          while [ $(curl -sw '%{http_code}' "http://grafana:3000" -o /dev/null) -ne 200]; do
+            echo '.'
+            sleep 15;
+          done
       containers:
       - name: grafana-import-dashboards
         image: giantswarm/tiny-tools

@@ -1,0 +1,10 @@
+groups:
+- name: fluentbit
+  rules:
+  - alert: FluentbitTooManyErrors
+    expr: rate(fluentbit_output_retries_failed_total[10m]) > 0
+    for: 10m
+    labels:
+      severity: notify
+    annotations:
+      description: Fluentbit ({{ $labels.instance }}) is erroring.

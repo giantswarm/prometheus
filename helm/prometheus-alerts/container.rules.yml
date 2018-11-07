@@ -1,0 +1,10 @@
+groups:
+- name: container
+  rules:
+  - alert: ContainerIsRestartingTooFrequently
+    expr: increase(kube_pod_container_status_restarts_total{}[1h]) > 5
+    for: 5m
+    labels:
+      severity: notify
+    annotations:
+      description: Container {{ $labels.container }} in pod {{ $labels.exported_namespace }}/{{ $labels.pod }} is restarting too often.

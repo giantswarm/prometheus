@@ -1,0 +1,11 @@
+groups:
+- name: fluentbit
+  rules:
+  - alert: LoggingDataNotAvailable
+    # threshold value is 3e+8 bytes = 300 MB
+    expr: kubelet_volume_stats_used_bytes{persistentvolumeclaim="elasticsearch-data"} < (300 * 1000 * 1000)
+    for: 60m
+    labels:
+      severity: notify
+    annotations:
+      description: elasticsearch has no or very little log data in its volume.

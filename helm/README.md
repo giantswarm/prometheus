@@ -214,4 +214,4 @@ If NetworkPolicy is enabled for Prometheus' scrape targets, you may also need
 to manually create a networkpolicy which allows it.
 
 
-__Note__: This chart configuration is highly influences by the [community one](https://github.com/helm/charts/tree/master/stable/prometheus).
+__Note__: This chart is based off of the [upstream community chart](https://github.com/helm/charts/tree/master/stable/prometheus).

@@ -12,7 +12,7 @@ An opinionated [Prometheus](https://prometheus.io/) Helm chart for deployment in
 To install the chart:
 
 ```console
-$ helm install ./helm --name prometheus
+$ helm install ./helm --name my-prometheus
 ```
 
 The command deploys Prometheus on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.

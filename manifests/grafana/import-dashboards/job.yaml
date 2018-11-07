@@ -38,7 +38,7 @@ spec:
               if [ -e "$file" ] ; then
                 echo "importing $file" &&
                 curl --silent --fail --show-error \
-                  --request POST http://admin:admin@grafana:3000/api/datasources \
+                  --request POST http://${GF_ADMIN_USER}:${GF_ADMIN_PASSWORD}@grafana:3000/api/datasources \
                   --header "Content-Type: application/json" \
                   --data-binary "@$file" ;
                 echo "" ;
@@ -52,13 +52,24 @@ spec:
                   echo ',"overwrite":true,"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","pluginId":"prometheus","value":"prometheus"}]}' ) \
                 | jq -c '.' \
                 | curl --silent --fail --show-error \
-                  --request POST http://admin:admin@grafana:3000/api/dashboards/import \
+                  --request POST http://${GF_ADMIN_USER}:${GF_ADMIN_PASSWORD}@grafana:3000/api/dashboards/import \
                   --header "Content-Type: application/json" \
                   --data-binary "@-" ;
                 echo "" ;
               fi
             done
 
+        env:
+        - name: GF_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana
+              key: admin-username
+        - name: GF_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana
+              key: admin-password
         volumeMounts:
         - name: config-volume
           mountPath: /opt/grafana-import-dashboards

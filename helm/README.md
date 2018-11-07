@@ -160,7 +160,7 @@ $ helm install ./helm --name prometheus \
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install stable/prometheus --name prometheus -f values.yaml
+$ helm install ./helm --name prometheus -f values.yaml
 ```
 
 ### ConfigMap Files

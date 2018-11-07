@@ -22,7 +22,7 @@ The command deploys Prometheus on the Kubernetes cluster in the default configur
 To uninstall/delete the deployment:
 
 ```console
-$ helm delete prometheus --purge
+$ helm delete my-prometheus --purge
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.

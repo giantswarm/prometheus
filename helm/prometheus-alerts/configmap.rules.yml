@@ -1,0 +1,10 @@
+groups:
+- name: configmap
+  rules:
+  - alert: ConfigMapCountTooHigh
+    expr: kube_configmap_info > 1000
+    for: 15m
+    labels:
+      severity: notify
+    annotations:
+      description: ConfigMap count too high.

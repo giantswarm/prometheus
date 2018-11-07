@@ -102,7 +102,6 @@ scrape_configs:
         action: keep
         regex: 9\d{3}
 
-  # https://raw.githubusercontent.com/zatricky/kubernetes-prometheus/5030af4b07e5f30f859bf29180e26eaf0974f62b/configs/prometheus/prometheus.yaml
   - job_name: 'kubernetes-cadvisor'
     scheme: https
     tls_config:

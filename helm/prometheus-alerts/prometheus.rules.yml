@@ -1,0 +1,48 @@
+groups:
+- name: prometheus
+  rules:
+  - alert: PrometheusCompactionFailed
+    expr: prometheus_tsdb_compactions_failed_total > 1
+    for: 5m
+    labels:
+      severity: notify
+    annotations:
+      description: Prometheus compaction has failed.
+
+  - alert: PrometheusCPUUsageTooHigh
+    expr: sum(rate(container_cpu_usage_seconds_total{container_name="prometheus"}[20m])) / kube_pod_container_resource_limits_cpu_cores{container="prometheus"} > 0.93
+    for: 5m
+    labels:
+      severity: page
+    annotations:
+      description: Prometheus cpu usage is reaching the treshold. Monitoring of the installation might be unreliable.
+
+
+  - alert: PrometheusMemoryUsageTooHigh
+    expr: avg_over_time(container_memory_usage_bytes{container_name="prometheus"}[20m]) / kube_pod_container_resource_limits_memory_bytes{container="prometheus"} > 0.93
+    for: 5m
+    labels:
+      severity: page
+    annotations:
+      description: Prometheus memory usage is reaching the treshold. Monitoring of the installation might be unreliable.
+
+
+  - alert: PrometheusWALCorrupted
+    expr: prometheus_tsdb_wal_corruptions_total > 1
+    for: 5m
+    labels:
+      severity: notify
+    annotations:
+      description: Prometheus WAL is corrupted.
+
+  - alert: PrometheusIsRestarting
+    # This alert covers the issue when Prometheus restarted (OOM killed) due to
+    # lack of resources. Just check if total number of restarts more than 3.
+    # In that case, we should be as quick as possible, so Prometheus will be able
+    # to alarm before it will be killed by OOM killer.
+    expr: kube_pod_container_status_restarts_total{container="prometheus"} > 3
+    for: 1m
+    labels:
+      severity: notify
+    annotations:
+      description: Prometheus {{ $labels.exported_namespace }}/{{ $labels.pod }} is restarting too much probably due to OOM kills.

@@ -1,0 +1,30 @@
+groups:
+- name: node
+  rules:
+  - alert: NodeStateFlapping
+    # check for flapping node status
+    # "changes" is returning the amount of value changes in the vector
+    expr: changes(kube_node_status_condition{condition="Ready",status="true"}[30m]) > 6
+    for: 5m
+    labels:
+      severity: notify
+    annotations:
+      description: Node {{ $labels.node }} status is flapping.
+
+  - alert: NodeHasConstantOOMKills
+    # Alert if node has more than 3 OOM kills for last hour (1 every 5 minutes).
+    # This is only way to detect OOM kills at the moment.
+    expr: increase(node_vmstat_oom_kill{}[1h]) > 3
+    for: 10m
+    labels:
+      severity: notify
+    annotations:
+      description: Node {{ $labels.ip }} has constant OOM kills.
+
+  - alert: NodeIsUnschedulable
+    expr: kube_node_spec_unschedulable != 0
+    for: 45m
+    labels:
+      severity: notify
+    annotations:
+      description: Node {{ $labels.node }} is unschedulable.

@@ -1,0 +1,10 @@
+groups:
+- name: alertmanager
+  rules:
+  - alert: AlertManagerNotificationsFailing
+    expr: rate(alertmanager_notifications_failed_total[5m]) > 0
+    for: 10m
+    labels:
+      severity: notify
+    annotations:
+      description: AlertManager {{ $labels.integration }} notifications are failing.

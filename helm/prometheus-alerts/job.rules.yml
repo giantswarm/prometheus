@@ -1,0 +1,10 @@
+groups:
+- name: job
+  rules:
+  - alert: JobFailed
+    expr: kube_job_failed{condition="true"} == 1
+    for: 15m
+    labels:
+      severity: notify
+    annotations:
+      description: Job {{ $labels.exported_namespace }}/{{ $labels.exported_job }} is failed.

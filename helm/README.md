@@ -153,14 +153,14 @@ Parameter | Description | Default
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```console
-$ helm install ./helm --name prometheus \
+$ helm install ./helm --name my-prometheus \
     --set server.terminationGracePeriodSeconds=360
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install ./helm --name prometheus -f values.yaml
+$ helm install ./helm --name my-prometheus -f values.yaml
 ```
 
 ### ConfigMap Files

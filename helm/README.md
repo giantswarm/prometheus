@@ -153,7 +153,7 @@ Parameter | Description | Default
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```console
-$ helm install stable/prometheus --name prometheus \
+$ helm install ./helm --name prometheus \
     --set server.terminationGracePeriodSeconds=360
 ```
 

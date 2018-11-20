@@ -186,7 +186,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(prometheus_tsdb_head_series{cluster_type=\"host\"})",
+          "expr": "sum(prometheus_tsdb_head_series)",
           "format": "time_series",
           "intervalFactor": 2,
           "refId": "B",
@@ -450,7 +450,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "kube_pod_container_resource_limits_memory_bytes{container=\"prometheus\",cluster_type=\"host\"}",
+          "expr": "kube_pod_container_resource_limits_memory_bytes{container=\"prometheus\"}",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 2,
@@ -458,7 +458,7 @@
           "refId": "B"
         },
         {
-          "expr": "container_memory_usage_bytes{container_name=\"prometheus\",cluster_type=\"host\"}",
+          "expr": "container_memory_usage_bytes{container_name=\"prometheus\"}",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 2,
@@ -546,7 +546,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "kube_pod_container_resource_limits_cpu_cores{container=\"prometheus\",cluster_type=\"host\"}",
+          "expr": "kube_pod_container_resource_limits_cpu_cores{container=\"prometheus\"}",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 2,
@@ -554,7 +554,7 @@
           "refId": "B"
         },
         {
-          "expr": "sum(rate(container_cpu_usage_seconds_total{container_name=\"prometheus\",cluster_type=\"host\"}[3m]))",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{container_name=\"prometheus\"}[3m]))",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 2,
@@ -609,8 +609,6 @@
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
-    "host",
-    "guest"
   ],
   "templating": {
     "list": []

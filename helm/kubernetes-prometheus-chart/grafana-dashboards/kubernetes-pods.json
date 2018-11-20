@@ -142,7 +142,7 @@
         "show": false
       },
       "targets": [{
-        "expr": "sum(rate(container_cpu_usage_seconds_total{id=\"/\",instance=~\"^$instance$\"}[1m])) / sum (machine_cpu_cores{instance=~\"^$instance$\"}) * 100",
+        "expr": "sum(irate(container_cpu_usage_seconds_total{kubernetes_io_hostname=~\"^$instance$\"}[5m])) / sum(machine_cpu_cores{kubernetes_io_hostname=~\"^$instance$\"}) * 100",
         "interval": "10s",
         "intervalFactor": 1,
         "refId": "A",
@@ -433,7 +433,7 @@
         "show": false
       },
       "targets": [{
-        "expr": "sum (rate (container_cpu_usage_seconds_total{id=\"/\",instance=~\"^$instance$\"}[1m]))",
+        "expr": "sum(container_cpu_usage_seconds_total{id=\"/\",instance=~\"^$instance$\"})",
         "interval": "10s",
         "intervalFactor": 1,
         "refId": "A",
@@ -712,7 +712,7 @@
       "stack": false,
       "steppedLine": false,
       "targets": [{
-        "expr": "sum(rate(container_network_receive_bytes_total{instance=~\"^$instance$\",namespace=~\"^$namespace$\"}[1m]))",
+        "expr": "sum(container_network_receive_bytes_total{instance=~\"^$instance$\",namespace=~\"^$namespace$\"})",
         "interval": "",
         "intervalFactor": 2,
         "legendFormat": "receive",
@@ -720,7 +720,7 @@
         "refId": "A",
         "step": 240
       }, {
-        "expr": "- sum(rate(container_network_transmit_bytes_total{instance=~\"^$instance$\",namespace=~\"^$namespace$\"}[1m]))",
+        "expr": "- sum(container_network_transmit_bytes_total{instance=~\"^$instance$\",namespace=~\"^$namespace$\"})",
         "interval": "",
         "intervalFactor": 2,
         "legendFormat": "transmit",
@@ -810,7 +810,7 @@
       "stack": false,
       "steppedLine": false,
       "targets": [{
-        "expr": "sum(rate(container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\",instance=~\"^$instance$\",namespace=~\"^$namespace$\"}[1m])) by (pod_name)",
+        "expr": "sum(container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\",instance=~\"^$instance$\",namespace=~\"^$namespace$\"}) by (pod_name)",
         "interval": "",
         "intervalFactor": 2,
         "legendFormat": "{{ pod_name }}",
@@ -973,7 +973,7 @@
       "stack": false,
       "steppedLine": false,
       "targets": [{
-        "expr": "sum (rate (container_network_receive_bytes_total{image!=\"\",name=~\"^k8s_.*\",instance=~\"^$instance$\",namespace=~\"^$namespace$\"}[1m])) by (pod_name)",
+        "expr": "sum (container_network_receive_bytes_total{image!=\"\",name=~\"^k8s_.*\",instance=~\"^$instance$\",namespace=~\"^$namespace$\"}) by (pod_name)",
         "interval": "",
         "intervalFactor": 2,
         "legendFormat": "{{ pod_name }} < in",
@@ -981,7 +981,7 @@
         "refId": "A",
         "step": 240
       }, {
-        "expr": "- sum (rate (container_network_transmit_bytes_total{image!=\"\",name=~\"^k8s_.*\",instance=~\"^$instance$\",namespace=~\"^$namespace$\"}[1m])) by (pod_name)",
+        "expr": "- sum (container_network_transmit_bytes_total{image!=\"\",name=~\"^k8s_.*\",instance=~\"^$instance$\",namespace=~\"^$namespace$\"}) by (pod_name)",
         "interval": "",
         "intervalFactor": 2,
         "legendFormat": "{{ pod_name }} > out",
@@ -1144,7 +1144,7 @@
       "options": [],
       "query": "label_values(instance)",
       "refresh": 1,
-      "regex": "",
+      "regex": "/^ip.*/",
       "type": "query"
     }, {
       "current": {},

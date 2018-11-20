@@ -10,7 +10,7 @@ metadata:
   name: {{ template "prometheus.server.fullname" . }}
 subjects:
   - kind: ServiceAccount
-    name: {{ template "prometheus.serviceAccountName.server" . }}
+    name: prometheus
     namespace: {{ .Release.Namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io

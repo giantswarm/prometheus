@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "prometheus.grafana.fullname" . }}
+  labels:
+    app: {{ template "prometheus.name" . }}
+    component: "{{ .Values.grafana.name }}"
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- if .Values.grafana.service.labels }}
+{{ toYaml .Values.grafana.service.labels | indent 4 }}
+{{- end }}
+{{- with .Values.grafana.service.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+{{- if (or (eq .Values.grafana.service.type "ClusterIP") (empty .Values.grafana.service.type)) }}
+  type: ClusterIP
+  {{- if .Values.grafana.service.clusterIP }}
+  clusterIP: {{ .Values.grafana.service.clusterIP }}
+  {{end}}
+{{- else if eq .Values.grafana.service.type "LoadBalancer" }}
+  type: {{ .Values.grafana.service.type }}
+  {{- if .Values.grafana.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.grafana.service.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.grafana.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.grafana.service.loadBalancerSourceRanges | indent 4 }}
+  {{- end -}}
+{{- else }}
+  type: {{ .Values.grafana.service.type }}
+{{- end }}
+{{- if .Values.grafana.service.externalIPs }}
+  externalIPs:
+{{ toYaml .Values.grafana.service.externalIPs | indent 4 }}
+{{- end }}
+  ports:
+    - name: service
+      port: {{ .Values.grafana.service.port }}
+      protocol: TCP
+      targetPort: 3000
+{{ if (and (eq .Values.grafana.service.type "NodePort") (not (empty .Values.grafana.service.nodePort))) }}
+      nodePort: {{.Values.grafana.service.nodePort}}
+{{ end }}
+  selector:
+    app: {{ template "prometheus.name" . }}
+    release: {{ .Release.Name }}

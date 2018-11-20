@@ -33,7 +33,7 @@ spec:
 {{- if .Values.alertmanager.schedulerName }}
       schedulerName: "{{ .Values.alertmanager.schedulerName }}"
 {{- end }}
-      serviceAccountName: {{ template "prometheus.serviceAccountName.alertmanager" . }}
+      serviceAccountName: alertmanager
 {{- if .Values.alertmanager.priorityClassName }}
       priorityClassName: "{{ .Values.alertmanager.priorityClassName }}"
 {{- end }}

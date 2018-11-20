@@ -24,7 +24,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
-Create a fully qualified alertmanager name.
+Create a fully qualified grafana name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
 
@@ -40,6 +40,21 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 {{- end -}}
 {{- end -}}
+
+
+{{- define "prometheus.grafana.fullname" -}}
+{{- if .Values.grafana.fullnameOverride -}}
+{{- .Values.grafana.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- printf "%s-%s" .Release.Name .Values.grafana.name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.grafana.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
 
 {{/*
 Create a fully qualified kube-state-metrics name.
@@ -120,57 +135,3 @@ Return the appropriate apiVersion for networkpolicy.
 {{- end -}}
 {{- end -}}
 
-{{/*
-Create the name of the service account to use for the alertmanager component
-*/}}
-{{- define "prometheus.serviceAccountName.alertmanager" -}}
-{{- if .Values.serviceAccounts.alertmanager.create -}}
-    {{ default (include "prometheus.alertmanager.fullname" .) .Values.serviceAccounts.alertmanager.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccounts.alertmanager.name }}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Create the name of the service account to use for the kubeStateMetrics component
-*/}}
-{{- define "prometheus.serviceAccountName.kubeStateMetrics" -}}
-{{- if .Values.serviceAccounts.kubeStateMetrics.create -}}
-    {{ default (include "prometheus.kubeStateMetrics.fullname" .) .Values.serviceAccounts.kubeStateMetrics.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccounts.kubeStateMetrics.name }}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Create the name of the service account to use for the nodeExporter component
-*/}}
-{{- define "prometheus.serviceAccountName.nodeExporter" -}}
-{{- if .Values.serviceAccounts.nodeExporter.create -}}
-    {{ default (include "prometheus.nodeExporter.fullname" .) .Values.serviceAccounts.nodeExporter.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccounts.nodeExporter.name }}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Create the name of the service account to use for the pushgateway component
-*/}}
-{{- define "prometheus.serviceAccountName.pushgateway" -}}
-{{- if .Values.serviceAccounts.pushgateway.create -}}
-    {{ default (include "prometheus.pushgateway.fullname" .) .Values.serviceAccounts.pushgateway.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccounts.pushgateway.name }}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Create the name of the service account to use for the server component
-*/}}
-{{- define "prometheus.serviceAccountName.server" -}}
-{{- if .Values.serviceAccounts.server.create -}}
-    {{ default (include "prometheus.server.fullname" .) .Values.serviceAccounts.server.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccounts.server.name }}
-{{- end -}}
-{{- end -}}

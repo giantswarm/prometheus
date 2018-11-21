@@ -39,7 +39,7 @@ spec:
 {{- if .Values.server.schedulerName }}
       schedulerName: "{{ .Values.server.schedulerName }}"
 {{- end }}
-      serviceAccountName: {{ template "prometheus.serviceAccountName.server" . }}
+      serviceAccountName: prometheus
       {{- if .Values.initChownData.enabled }}
       initContainers:
       - name: "{{ .Values.initChownData.name }}"

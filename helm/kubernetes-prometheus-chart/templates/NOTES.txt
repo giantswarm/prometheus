@@ -68,5 +68,38 @@ Get the Alertmanager URL by running these commands in the same shell:
 {{- end }}
 {{- end }}
 
+Grafana
+
+1. Get your '{{ .Values.grafana.adminUser }}' user password by running:
+
+   kubectl get secret --namespace {{ .Release.Namespace }} {{ template "prometheus.grafana.fullname" . }} -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+2. The Grafana server can be accessed via port {{ .Values.grafana.service.port }} on the following DNS name from within your cluster:
+
+   {{ template "prometheus.grafana.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ if .Values.grafana.ingress.enabled }}
+   From outside the cluster, the server URL(s) are:
+{{- range .Values.grafana.ingress.hosts }}
+     http://{{ . }}
+{{- end }}
+{{ else }}
+   Get the Grafana URL to visit by running these commands in the same shell:
+{{ if contains "NodePort" .Values.grafana.service.type -}}
+     export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "prometheus.grafana.fullname" . }})
+     export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+     echo http://$NODE_IP:$NODE_PORT
+{{ else if contains "LoadBalancer" .Values.grafana.service.type -}}
+   NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        You can watch the status of by running 'kubectl get svc --namespace {{ .Release.Namespace }} -w {{ template "prometheus.grafana.fullname" . }}'
+     export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ template "prometheus.grafana.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+     http://$SERVICE_IP:{{ .Values.grafana.service.port -}}
+{{ else if contains "ClusterIP"  .Values.grafana.service.type }}
+     export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ template "prometheus.name" . }},component={{ .Values.grafana.name }}" -o jsonpath="{.items[0].metadata.name}")
+     kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 3000
+{{- end }}
+{{- end }}
+
+3. Login with the password from step 1 and the username: {{ .Values.grafana.adminUser }}
+
 For more information on running Prometheus, visit:
 https://prometheus.io/

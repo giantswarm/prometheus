@@ -1,0 +1,148 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "prometheus.grafana.fullname" . }}
+  labels:
+    app: {{ template "prometheus.name" . }}
+    component: "{{ .Values.grafana.name }}"
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- with .Values.grafana.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.grafana.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "prometheus.name" . }}
+      release: {{ .Release.Name }}
+  strategy:
+    type: {{ .Values.grafana.deploymentStrategy }}
+  {{- if ne .Values.grafana.deploymentStrategy "RollingUpdate" }}
+    rollingUpdate: null
+  {{- end }}    
+  template:
+    metadata:
+      labels:
+        app: {{ template "prometheus.name" . }}
+        component: "{{ .Values.grafana.name }}"
+        release: {{ .Release.Name }}
+{{- with .Values.grafana.podAnnotations }}
+      annotations:
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      serviceAccountName: grafana
+{{- if .Values.grafana.schedulerName }}
+      schedulerName: "{{ .Values.grafana.schedulerName }}"
+{{- end }}
+{{- if .Values.grafana.securityContext }}
+      securityContext:
+{{ toYaml .Values.grafana.securityContext | indent 8 }}
+{{- end }}
+{{- if .Values.grafana.dashboards }}
+      initContainers:
+        - name: download-dashboards
+          image: "{{ .Values.grafana.downloadDashboardsImage.repository }}:{{ .Values.grafana.downloadDashboardsImage.tag }}"
+          imagePullPolicy: {{ .Values.grafana.downloadDashboardsImage.pullPolicy }}
+          command: ["sh", "/etc/grafana/download_dashboards.sh"]
+          volumeMounts:
+            - name: config
+              mountPath: "/etc/grafana/download_dashboards.sh"
+              subPath: download_dashboards.sh
+            - name: storage
+              mountPath: "/var/lib/grafana"
+              subPath: {{ .Values.grafana.persistence.subPath }}
+          {{- range .Values.grafana.extraSecretMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+              readOnly: {{ .readOnly }}
+          {{- end }}
+{{- end }}
+      {{- if .Values.grafana.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.grafana.image.pullSecrets }}
+        - name: {{ . }}
+      {{- end}}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
+          imagePullPolicy: {{ .Values.grafana.image.pullPolicy }}
+          volumeMounts:
+            - name: config
+              mountPath: "/etc/grafana/grafana.ini"
+              subPath: grafana.ini
+            - name: ldap
+              mountPath: "/etc/grafana/ldap.toml"
+              subPath: ldap.toml
+            # Data sources to provision on startup
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources
+            # Main dashboard provisioning file directory
+            - name: dashboards-main
+              mountPath: /etc/grafana/provisioning/dashboards
+            # Individual dashboards JSON directory
+            - name: dashboards-json
+              mountPath: /etc/grafana/provisioning/dashboards-json
+          ports:
+            - name: service
+              containerPort: {{ .Values.grafana.service.port }}
+              protocol: TCP
+            - name: grafana
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "prometheus.grafana.fullname" . }}
+                  key: admin-user
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "prometheus.grafana.fullname" . }}
+                  key: admin-password
+          livenessProbe:
+{{ toYaml .Values.grafana.livenessProbe | indent 12 }}
+          readinessProbe:
+{{ toYaml .Values.grafana.readinessProbe | indent 12 }}
+          resources:
+{{ toYaml .Values.grafana.resources | indent 12 }}
+    {{- with .Values.grafana.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.grafana.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.grafana.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "prometheus.grafana.fullname" . }}
+        - name: ldap
+          secret:
+            {{- if .Values.grafana.ldap.existingSecret }}
+            secretName: {{ .Values.grafana.ldap.existingSecret }}
+            {{- else }}
+            secretName: {{ template "prometheus.grafana.fullname" . }}
+            {{- end }}
+            items:
+              - key: ldap-toml
+                path: ldap.toml
+        - name: datasources
+          configMap:
+            name: grafana-datasources
+        - name: dashboards-main
+          configMap:
+            name: grafana-dashboards-main
+        - name: dashboards-json
+          configMap:
+            name: grafana-dashboards-json

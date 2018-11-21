@@ -1,11 +1,3 @@
-## Define serviceAccount names for components. Defaults to component's fully qualified name.
-serviceAccounts:
-  alertmanager:
-    create: true
-    name: alertmanager
-  server:
-    create: true
-    name: prometheus
 
 alertmanager:
   ## If false, alertmanager will not be installed
@@ -442,7 +434,7 @@ server:
 
     loadBalancerIP: ""
     loadBalancerSourceRanges: []
-    servicePort: 80
+    servicePort: 9090
     type: ClusterIP
 
   ## Prometheus server pod termination grace period
@@ -786,3 +778,156 @@ networkPolicy:
   ## Enable creation of NetworkPolicy resources.
   ##
   enabled: false
+
+grafana:
+  name: grafana
+  replicas: 1
+
+  deploymentStrategy: RollingUpdate
+
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 60
+    timeoutSeconds: 30
+    failureThreshold: 10
+
+  image:
+    repository: grafana/grafana
+    tag: 5.3.2
+    pullPolicy: IfNotPresent
+
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ##
+    # pullSecrets:
+    #   - myRegistrKeySecretName
+
+  securityContext:
+    runAsUser: 472
+    fsGroup: 472
+
+  ## Pod Annotations
+  # podAnnotations: {}
+
+  ## Deployment annotations
+  # annotations: {}
+
+  ## Expose the grafana service to be accessed from outside the cluster (LoadBalancer service).
+  ## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+  ## ref: http://kubernetes.io/docs/user-guide/services/
+  ##
+  service:
+    type: ClusterIP
+    port: 80
+    annotations: {}
+    labels: {}
+
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    labels: {}
+    path: /
+    hosts:
+      - chart-example.local
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources:
+   limits:
+     cpu: 100m
+     memory: 128Mi
+   requests:
+     cpu: 100m
+     memory: 128Mi
+
+  ## Node labels for pod assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  #
+  nodeSelector: {}
+
+  ## Tolerations for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+
+  ## Affinity for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ##
+  affinity: {}
+
+  adminUser: admin
+  # adminPassword: strongpassword
+
+  ## Use an alternate scheduler, e.g. "stork".
+  ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  # schedulerName:
+
+  ## Extra environment variables that will be pass onto deployment pods
+  env: {}
+
+  ## Grafana's primary configuration
+  ## NOTE: values in map will be converted to ini format
+  ## ref: http://docs.grafana.org/installation/configuration/
+  ##
+  custom.ini:
+    paths:
+      data: /var/lib/grafana/data
+      logs: /var/log/grafana
+      plugins: /var/lib/grafana/plugins
+      provisioning: /etc/grafana/provisioning
+    analytics:
+      check_for_updates: true
+    log:
+      mode: console
+    grafana_net:
+      url: https://grafana.net
+      
+  ## LDAP Authentication can be enabled with the following values on grafana.ini
+  ## NOTE: Grafana will fail to start if the value for ldap.toml is invalid
+    # auth.ldap:
+    #   enabled: true
+    #   allow_sign_up: true
+    #   config_file: /etc/grafana/ldap.toml
+
+  ## Grafana's LDAP configuration
+  ## Templated by the template in _helpers.tpl
+  ## NOTE: To enable the grafana.ini must be configured with auth.ldap.enabled
+  ## ref: http://docs.grafana.org/installation/configuration/#auth-ldap
+  ## ref: http://docs.grafana.org/installation/ldap/#configuration
+  ldap:
+    # `existingSecret` is a reference to an existing secret containing the ldap configuration
+    # for Grafana in a key `ldap-toml`.
+    existingSecret: ""
+    # `config` is the content of `ldap.toml` that will be stored in the created secret
+    config: ""
+    # config: |-
+    #   verbose_logging = true
+
+    #   [[servers]]
+    #   host = "my-ldap-server"
+    #   port = 636
+    #   use_ssl = true
+    #   start_tls = false
+    #   ssl_skip_verify = false
+    #   bind_dn = "uid=%s,ou=users,dc=myorg,dc=com"
+
+  ## Grafana's SMTP configuration
+  ## NOTE: To enable, grafana.ini must be configured with smtp.enabled
+  ## ref: http://docs.grafana.org/installation/configuration/#smtp
+  smtp:
+    # `existingSecret` is a reference to an existing secret containing the smtp configuration
+    # for Grafana in keys `user` and `password`.
+    existingSecret: ""

@@ -1,5 +1,15 @@
 version: 2
 jobs:
+  lint:
+    docker:
+      - image: koalaman/shellcheck-alpine
+    steps:
+      - checkout
+
+      - run:
+          name: lint scripts
+          command: shellcheck -x ci-scripts/*
+
   build:
     working_directory: /home/circleci/.go_workspace/src/github.com/giantswarm/kubernetes-prometheus
     machine: true
@@ -18,8 +28,36 @@ jobs:
     - store_test_results:
         path: /tmp/results
 
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.12
+    steps:
+      - checkout
+
+      - run:
+          name: "Package Helm Chart"
+          command: |
+            ./ci-scripts/package.sh ${CIRCLE_PROJECT_REPONAME} ${CIRCLE_TAG}
+
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            ghr -t ${PERSONAL_ACCESS_TOKEN} -u giantswarm -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${CIRCLE_TAG} "${CIRCLE_PROJECT_REPONAME}-chart-${CIRCLE_TAG}.tgz"
+
 workflows:
   version: 2
   build-deploy:
     jobs:
-      - build
+      - lint
+      - build:
+          filters:
+            tags:
+              only: /^\d+\.\d+\.\d+$/
+      - publish-github-release:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^\d+\.\d+\.\d+$/

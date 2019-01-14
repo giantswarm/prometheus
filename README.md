@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/giantswarm/kubernetes-prometheus.svg?style=svg)](https://circleci.com/gh/giantswarm/kubernetes-prometheus)
 # Kubernetes Setup for Prometheus and Grafana
 
 ## Quick start

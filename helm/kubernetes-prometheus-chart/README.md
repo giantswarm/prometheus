@@ -149,34 +149,32 @@ Parameter | Description | Default
 `serverFiles.prometheus.yml` | Prometheus server scrape configuration | example configuration
 `extraScrapeConfigs` | Prometheus server additional scrape configuration | ""
 `networkPolicy.enabled` | Enable NetworkPolicy | `false` |
-`grafana.replicas` | Number of nodes | `1` 
-`grafana.deploymentStrategy` | Deployment strategy | `RollingUpdate` 
+`grafana.replicas` | Number of nodes | `1`
+`grafana.deploymentStrategy` | Deployment strategy | `RollingUpdate`
 `grafana.livenessProbe` | Liveness Probe settings | `{ "httpGet": { "path": "/api/health", "port": 3000 } "initialDelaySeconds": 60, "timeoutSeconds": 30, "failureThreshold": 10 }
-`grafana.readinessProbe` | Rediness Probe settings | `{ "httpGet": { "path": "/api/health", "port": 3000 } 
-`grafana.securityContext` | Deployment securityContext | `{"runAsUser": 472, "fsGroup": 472}` 
-`grafana.image.repository` | Image repository | `grafana/grafana` 
-`grafana.image.tag` | Image tag. (`Must be >= 5.0.0`) | `5.3.4` 
-`grafana.image.pullPolicy` | Image pull policy | `IfNotPresent` 
-`grafana.service.type` | Kubernetes service type | `ClusterIP` 
-`grafana.service.port` | Kubernetes port where service is exposed | `80` 
-`grafana.service.annotations` | Service annotations | `{}` 
-`grafana.service.labels` | Custom labels | `{}` 
-`grafana.ingress.enabled` | Enables Ingress | `false` 
-`grafana.ingress.annotations` | Ingress annotations | `{}` 
-`grafana.ingress.labels` | Custom labels | `{}` 
-`grafana.ingress.hosts` | Ingress accepted hostnames | `[]` 
-`grafana.ingress.tls` | Ingress TLS configuration | `[]` 
-`grafana.resources` | CPU/Memory resource requests/limits | `{}` 
-`grafana.nodeSelector` | Node labels for pod assignment | `{}` 
-`grafana.tolerations` | Toleration labels for pod assignment | `[]` 
-`grafana.affinity` | Affinity settings for pod assignment | `{}` 
-`grafana.schedulerName` | Alternate scheduler name | `nil` 
-`grafana.env` | Extra environment variables passed to pods | `{}` 
-`grafana.custom.ini` | Grafana's primary configuration | `{}` 
-`grafana.ldap.existingSecret` | The name of an existing secret containing the `ldap.toml` file, this must have the key `ldap-toml`. | `""` |
-`grafana.ldap.config  ` | Grafana's LDAP configuration | `""` 
-`grafana.annotations` | Deployment annotations | `{}` 
-`grafana.podAnnotations` | Pod annotations | `{}` 
+`grafana.readinessProbe` | Rediness Probe settings | `{ "httpGet": { "path": "/api/health", "port": 3000 }
+`grafana.securityContext` | Deployment securityContext | `{"runAsUser": 472, "fsGroup": 472}`
+`grafana.image.repository` | Image repository | `grafana/grafana`
+`grafana.image.tag` | Image tag. (`Must be >= 5.0.0`) | `5.3.4`
+`grafana.image.pullPolicy` | Image pull policy | `IfNotPresent`
+`grafana.service.type` | Kubernetes service type | `ClusterIP`
+`grafana.service.port` | Kubernetes port where service is exposed | `80`
+`grafana.service.annotations` | Service annotations | `{}`
+`grafana.service.labels` | Custom labels | `{}`
+`grafana.ingress.enabled` | Enables Ingress | `false`
+`grafana.ingress.annotations` | Ingress annotations | `{}`
+`grafana.ingress.labels` | Custom labels | `{}`
+`grafana.ingress.hosts` | Ingress accepted hostnames | `[]`
+`grafana.ingress.tls` | Ingress TLS configuration | `[]`
+`grafana.resources` | CPU/Memory resource requests/limits | `{}`
+`grafana.nodeSelector` | Node labels for pod assignment | `{}`
+`grafana.tolerations` | Toleration labels for pod assignment | `[]`
+`grafana.affinity` | Affinity settings for pod assignment | `{}`
+`grafana.schedulerName` | Alternate scheduler name | `nil`
+`grafana.env` | Extra environment variables passed to pods | `{}`
+`grafana.custom.ini` | Grafana's primary configuration | `{}`
+`grafana.annotations` | Deployment annotations | `{}`
+`grafana.podAnnotations` | Pod annotations | `{}`
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 

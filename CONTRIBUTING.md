@@ -1,6 +1,6 @@
 # How to contribute
 
-PROJECT is Apache 2.0 licensed and accepts contributions via GitHub pull
+Prometheus is Apache 2.0 licensed and accepts contributions via GitHub pull
 requests. This document outlines some of the conventions on commit message
 formatting, contact points for developers and other resources to make getting
 your contribution into PROJECT easier.

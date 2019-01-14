@@ -22,7 +22,7 @@ spec:
     type: {{ .Values.grafana.deploymentStrategy }}
   {{- if ne .Values.grafana.deploymentStrategy "RollingUpdate" }}
     rollingUpdate: null
-  {{- end }}
+  {{- end }}    
   template:
     metadata:
       labels:
@@ -129,7 +129,11 @@ spec:
             name: {{ template "prometheus.grafana.fullname" . }}
         - name: ldap
           secret:
+            {{- if .Values.grafana.ldap.existingSecret }}
+            secretName: {{ .Values.grafana.ldap.existingSecret }}
+            {{- else }}
             secretName: {{ template "prometheus.grafana.fullname" . }}
+            {{- end }}
             items:
               - key: ldap-toml
                 path: ldap.toml

@@ -2,7 +2,7 @@ version: 2
 jobs:
   lint:
     docker:
-      - image: giantswarm/shellcheck-alpine:v0.6.0
+      - image: quay.io/giantswarm/shellcheck-alpine:v0.6.0
     steps:
       - checkout
 
@@ -30,7 +30,7 @@ jobs:
 
   publish-github-release:
     docker:
-      - image: giantswarm/github:0.12
+      - image: quay.io/giantswarm/github:0.12
     steps:
       - checkout
 

@@ -42,7 +42,7 @@ jobs:
       - run:
           name: "Publish Release on GitHub"
           command: |
-            ghr -t ${PERSONAL_ACCESS_TOKEN} -u giantswarm -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${CIRCLE_TAG} "${CIRCLE_PROJECT_REPONAME}-chart-${CIRCLE_TAG}.tgz"
+            ghr -t ${PERSONAL_ACCESS_TOKEN} -u giantswarm -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} ${CIRCLE_TAG} "${CIRCLE_PROJECT_REPONAME}-chart-${CIRCLE_TAG:1}.tgz"
 
 workflows:
   version: 2
@@ -52,7 +52,7 @@ workflows:
       - build:
           filters:
             tags:
-              only: /^\d+\.\d+\.\d+$/
+              only: /^v\d+\.\d+\.\d+$/
       - publish-github-release:
           requires:
             - build
@@ -60,4 +60,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /^\d+\.\d+\.\d+$/
+              only: /^v\d+\.\d+\.\d+$/

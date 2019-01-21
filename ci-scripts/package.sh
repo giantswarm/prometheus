@@ -5,7 +5,8 @@ set -o nounset
 set -o pipefail
 
 readonly PROJECT=$1
-readonly VERSION=$2
+readonly TAG=$2
+readonly VERSION=${TAG:1}
 
 readonly HELM_URL=https://storage.googleapis.com/kubernetes-helm
 readonly HELM_TARBALL=helm-v2.12.0-linux-amd64.tar.gz

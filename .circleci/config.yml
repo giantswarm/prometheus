@@ -2,7 +2,7 @@ version: 2
 jobs:
   lint:
     docker:
-      - image: koalaman/shellcheck-alpine
+      - image: giantswarm/shellcheck-alpine:v0.6.0
     steps:
       - checkout
 
@@ -30,7 +30,7 @@ jobs:
 
   publish-github-release:
     docker:
-      - image: cibuilds/github:0.12
+      - image: giantswarm/github:0.12
     steps:
       - checkout
 

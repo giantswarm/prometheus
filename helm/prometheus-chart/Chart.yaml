@@ -12,4 +12,4 @@ sources:
   - https://github.com/prometheus/alertmanager
   - https://github.com/prometheus/prometheus
 tillerVersion: ">=2.8.0"
-version: 0.1.0-[[ .SHA ]]
+version: 0.1.0

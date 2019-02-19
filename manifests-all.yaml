@@ -2324,7 +2324,7 @@ spec:
         - -c
         - >
           set -x;
-          while [ $(curl -sw '%{http_code}' "http://grafana:3000" -o /dev/null) -ne 200 ]; do
+          while [ $(curl -Lsw '%{http_code}' "http://grafana:3000" -o /dev/null) -ne 200 ]; do
             echo '.'
             sleep 15;
           done

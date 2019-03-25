@@ -349,8 +349,6 @@ spec:
       labels:
         app: alertmanager
     spec:
-      nodeSelector:
-        beta.kubernetes.io/arch: amd64
       containers:
       - name: alertmanager
         image: quay.io/prometheus/alertmanager:v0.7.1
@@ -413,8 +411,6 @@ spec:
         app: grafana
         component: core
     spec:
-      nodeSelector:
-        beta.kubernetes.io/arch: amd64
       containers:
       - image: grafana/grafana:4.2.0
         name: grafana-core
@@ -2319,8 +2315,6 @@ spec:
         app: grafana
         component: import-dashboards
     spec:
-      nodeSelector:
-        beta.kubernetes.io/arch: amd64
       serviceAccountName: prometheus-k8s
       initContainers:
       - name: wait-for-grafana
@@ -2575,8 +2569,6 @@ spec:
         app: prometheus
         component: core
     spec:
-      nodeSelector:
-        beta.kubernetes.io/arch: amd64
       serviceAccountName: prometheus-k8s
       containers:
       - name: prometheus
@@ -2621,8 +2613,6 @@ spec:
       labels:
         app: kube-state-metrics
     spec:
-      nodeSelector:
-        beta.kubernetes.io/arch: amd64
       serviceAccountName: kube-state-metrics
       containers:
       - name: kube-state-metrics
@@ -2716,8 +2706,6 @@ spec:
           This `Pod` is scheduled on every node in the Kubernetes cluster.
           To choose directories from the node to check just mount them on `read-du` below `/mnt`.
     spec:
-      nodeSelector:
-        beta.kubernetes.io/arch: amd64
       containers:
       - name: read-du
         image: giantswarm/tiny-tools
@@ -2779,8 +2767,6 @@ spec:
         app: prometheus
         component: node-exporter
     spec:
-      nodeSelector:
-        beta.kubernetes.io/arch: amd64
       containers:
       - image: prom/node-exporter:v0.14.0
         name: prometheus-node-exporter

@@ -11,7 +11,7 @@ jobs:
           command: shellcheck -x ci-scripts/*
 
   build:
-    working_directory: /home/circleci/.go_workspace/src/github.com/giantswarm/kubernetes-prometheus
+    working_directory: /home/circleci/.go_workspace/src/github.com/giantswarm/prometheus
     machine: true
     steps:
     - checkout

@@ -30,9 +30,7 @@ kubectl --namespace monitoring delete job grafana-import-dashboards
 
 To access grafana you can use port forward functionality
 ```bash
-export POD_NAME=$(kubectl get pods --namespace monitoring -l "app=grafana,component=core" -o jsonpath="{.items[0].metadata.name}")
-
-kubectl port-forward --namespace monitoring $POD_NAME 3000:3000
+kubectl port-forward --namespace monitoring service/grafana 3000:3000
 ```
 And you should be able to access grafana on `http://localhost:3000/login`
 

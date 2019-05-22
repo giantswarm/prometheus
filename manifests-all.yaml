@@ -536,7 +536,7 @@ data:
             "show": false
           },
           "targets": [{
-            "expr": "(time() - process_start_time_seconds{job=\"prometheus\"})",
+            "expr": "(time() - container_start_time_seconds{container_name=\"kube-apiserver\"})",
             "intervalFactor": 2,
             "refId": "A",
             "step": 4
@@ -998,7 +998,7 @@ data:
           "stack": false,
           "steppedLine": false,
           "targets": [{
-            "expr": "prometheus_evaluator_duration_milliseconds{quantile!=\"0.01\", quantile!=\"0.05\"}",
+            "expr": "prometheus_evaluator_duration_seconds{quantile!=\"0.01\", quantile!=\"0.05\"}",
             "interval": "",
             "intervalFactor": 2,
             "legendFormat": "{{quantile}}",
@@ -1925,7 +1925,7 @@ data:
           "stack": false,
           "steppedLine": false,
           "targets": [{
-            "expr": "sum(rate(container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (pod_name)",
+            "expr": "sum(rate(container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\",instance=~\"^$instance$\",namespace=~\"^$namespace$\"}[1m])) by (pod_name)",
             "interval": "",
             "intervalFactor": 2,
             "legendFormat": "{{ pod_name }}",

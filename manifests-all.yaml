@@ -405,6 +405,9 @@ metadata:
     component: core
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: grafana-core
   template:
     metadata:
       labels:
@@ -2562,6 +2565,9 @@ metadata:
     component: core
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-core
   template:
     metadata:
       name: prometheus-main
@@ -2608,6 +2614,9 @@ metadata:
   namespace: monitoring
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: kube-state-metrics
   template:
     metadata:
       labels:

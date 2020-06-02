@@ -5,7 +5,7 @@ kind: Namespace
 metadata:
   name: monitoring
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: prometheus
@@ -18,7 +18,7 @@ subjects:
   name: prometheus-k8s
   namespace: monitoring
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: prometheus
@@ -333,7 +333,7 @@ data:
       - channel: '#alertmanager-test'
         send_resolved: true
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: alertmanager
@@ -395,7 +395,7 @@ spec:
     port: 9093
     targetPort: 9093
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana-core
@@ -405,6 +405,10 @@ metadata:
     component: core
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+      component: core
   template:
     metadata:
       labels:
@@ -2552,7 +2556,7 @@ metadata:
   name: prometheus-core
   namespace: monitoring
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus-core
@@ -2562,6 +2566,10 @@ metadata:
     component: core
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+      component: core
   template:
     metadata:
       name: prometheus-main
@@ -2601,13 +2609,16 @@ spec:
         configMap:
           name: prometheus-rules
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kube-state-metrics
   namespace: monitoring
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: kube-state-metrics
   template:
     metadata:
       labels:
@@ -2621,7 +2632,7 @@ spec:
         - containerPort: 8080
 ---
 # ---
-# apiVersion: rbac.authorization.k8s.io/v1beta1
+# apiVersion: rbac.authorization.k8s.io/v1
 # kind: ClusterRoleBinding
 # metadata:
 #   name: kube-state-metrics
@@ -2634,7 +2645,7 @@ spec:
 #   name: kube-state-metrics
 #   namespace: monitoring
 # ---
-# apiVersion: rbac.authorization.k8s.io/v1beta1
+# apiVersion: rbac.authorization.k8s.io/v1
 # kind: ClusterRole
 # metadata:
 #   name: kube-state-metrics
@@ -2648,7 +2659,7 @@ spec:
 #   - replicationcontrollers
 #   - limitranges
 #   verbs: ["list", "watch"]
-# - apiGroups: ["extensions"]
+# - apiGroups: ["extensions", "apps"]
 #   resources:
 #   - daemonsets
 #   - deployments
@@ -2677,9 +2688,8 @@ spec:
     protocol: TCP
   selector:
     app: kube-state-metrics
-
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: node-directory-size-metrics
@@ -2692,6 +2702,9 @@ metadata:
       These are scheduled on every node in the Kubernetes cluster.
       To choose directories from the node to check, just mount them on the `read-du` container below `/mnt`.
 spec:
+  selector:
+    matchLabels:
+      app: node-directory-size-metrics
   template:
     metadata:
       labels:
@@ -2751,7 +2764,7 @@ spec:
         emptyDir:
           medium: Memory
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: prometheus-node-exporter
@@ -2760,6 +2773,10 @@ metadata:
     app: prometheus
     component: node-exporter
 spec:
+  selector:
+    matchLabels:
+      app: prometheus
+      component: node-exporter
   template:
     metadata:
       name: prometheus-node-exporter

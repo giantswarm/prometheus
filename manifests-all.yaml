@@ -2648,7 +2648,7 @@ spec:
 #   - replicationcontrollers
 #   - limitranges
 #   verbs: ["list", "watch"]
-# - apiGroups: ["apps/v1"]
+# - apiGroups: ["apps"]
 #   resources:
 #   - daemonsets
 #   - deployments

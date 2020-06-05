@@ -333,7 +333,7 @@ data:
       - channel: '#alertmanager-test'
         send_resolved: true
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: alertmanager
@@ -395,7 +395,7 @@ spec:
     port: 9093
     targetPort: 9093
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana-core
@@ -405,6 +405,9 @@ metadata:
     component: core
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
   template:
     metadata:
       labels:
@@ -2552,7 +2555,7 @@ metadata:
   name: prometheus-core
   namespace: monitoring
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus-core
@@ -2562,6 +2565,9 @@ metadata:
     component: core
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
   template:
     metadata:
       name: prometheus-main
@@ -2601,13 +2607,18 @@ spec:
         configMap:
           name: prometheus-rules
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kube-state-metrics
   namespace: monitoring
+  labels: 
+    app: kube-state-metrics
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: kube-state-metrics
   template:
     metadata:
       labels:
@@ -2648,7 +2659,7 @@ spec:
 #   - replicationcontrollers
 #   - limitranges
 #   verbs: ["list", "watch"]
-# - apiGroups: ["extensions"]
+# - apiGroups: ["apps"]
 #   resources:
 #   - daemonsets
 #   - deployments
@@ -2679,11 +2690,13 @@ spec:
     app: kube-state-metrics
 
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: node-directory-size-metrics
   namespace: monitoring
+  labels:
+    app: node-directory-size-metrics
   annotations:
     description: |
       This `DaemonSet` provides metrics in Prometheus format about disk usage on the nodes.
@@ -2692,6 +2705,9 @@ metadata:
       These are scheduled on every node in the Kubernetes cluster.
       To choose directories from the node to check, just mount them on the `read-du` container below `/mnt`.
 spec:
+  selector:
+    matchLabels:
+      app: node-directory-size-metrics
   template:
     metadata:
       labels:
@@ -2751,7 +2767,7 @@ spec:
         emptyDir:
           medium: Memory
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: prometheus-node-exporter
@@ -2760,6 +2776,9 @@ metadata:
     app: prometheus
     component: node-exporter
 spec:
+  selector:
+    matchLabels:
+      app: prometheus
   template:
     metadata:
       name: prometheus-node-exporter

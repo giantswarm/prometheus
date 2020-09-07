@@ -75,9 +75,11 @@ spec:
             - name: config
               mountPath: "/etc/grafana/grafana.ini"
               subPath: grafana.ini
+            {{- if .Values.grafana.auth }}
             - name: ldap
               mountPath: "/etc/grafana/ldap.toml"
               subPath: ldap.toml
+            {{- end }}
             # Data sources to provision on startup
             - name: datasources
               mountPath: /etc/grafana/provisioning/datasources
@@ -127,12 +129,14 @@ spec:
         - name: config
           configMap:
             name: {{ template "prometheus.grafana.fullname" . }}
+        {{- if .Values.grafana.auth }}
         - name: ldap
           secret:
             secretName: {{ template "prometheus.grafana.fullname" . }}
             items:
               - key: ldap-toml
                 path: ldap.toml
+        {{- end }}
         - name: datasources
           configMap:
             name: grafana-datasources

@@ -1465,7 +1465,7 @@ data:
           "stack": false,
           "steppedLine": false,
           "targets": [{
-            "expr": "sum(rate(container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\",kubernetes_io_hostname=~\"^$Node$\"}[1m])) by (pod_name)",
+            "expr": "sum(rate(container_cpu_usage_seconds_total{image!=\"\",name=~\"^k8s_.*\",instance=~\"^$instance$\",namespace=~\"^$namespace$\"}[1m])) by (pod_name)",
             "interval": "",
             "intervalFactor": 2,
             "legendFormat": "{{ pod_name }}",

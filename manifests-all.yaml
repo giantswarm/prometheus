@@ -5,7 +5,8 @@ kind: Namespace
 metadata:
   name: monitoring
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: prometheus
@@ -18,7 +19,7 @@ subjects:
   name: prometheus-k8s
   namespace: monitoring
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: prometheus
@@ -539,7 +540,7 @@ data:
             "show": false
           },
           "targets": [{
-            "expr": "(time() - container_start_time_seconds{container_name=\"kube-apiserver\"})",
+            "expr": "(time() - process_start_time_seconds{job=\"prometheus\"})",
             "intervalFactor": 2,
             "refId": "A",
             "step": 4
@@ -1001,7 +1002,7 @@ data:
           "stack": false,
           "steppedLine": false,
           "targets": [{
-            "expr": "prometheus_evaluator_duration_seconds{quantile!=\"0.01\", quantile!=\"0.05\"}",
+            "expr": "prometheus_evaluator_duration_milliseconds{quantile!=\"0.01\", quantile!=\"0.05\"}",
             "interval": "",
             "intervalFactor": 2,
             "legendFormat": "{{quantile}}",
@@ -2540,7 +2541,6 @@ data:
           - role: node
         relabel_configs:
           - action: labelmap
-          - action: labelmap
             regex: __meta_kubernetes_node_label_(.+)
           - target_label: __address__
             replacement: kubernetes.default.svc:443
@@ -2548,7 +2548,6 @@ data:
             regex: (.+)
             target_label: __metrics_path__
             replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
-
 kind: ConfigMap
 metadata:
   creationTimestamp: null
@@ -2632,7 +2631,7 @@ spec:
         - containerPort: 8080
 ---
 # ---
-# apiVersion: rbac.authorization.k8s.io/v1beta1
+# apiVersion: rbac.authorization.k8s.io/v1
 # kind: ClusterRoleBinding
 # metadata:
 #   name: kube-state-metrics
@@ -2645,7 +2644,7 @@ spec:
 #   name: kube-state-metrics
 #   namespace: monitoring
 # ---
-# apiVersion: rbac.authorization.k8s.io/v1beta1
+# apiVersion: rbac.authorization.k8s.io/v1
 # kind: ClusterRole
 # metadata:
 #   name: kube-state-metrics
@@ -2688,7 +2687,7 @@ spec:
     protocol: TCP
   selector:
     app: kube-state-metrics
-
+    
 ---
 apiVersion: apps/v1
 kind: DaemonSet
